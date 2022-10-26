@@ -1,12 +1,12 @@
 locals {
-  tags_prefix = lower(var.project_name)
+  tags_prefix = "perf"
   public_subnet_tags = { 
-    "kubernetes.io/cluster/${lower(var.project_name)}-cluster" = "shared"
+    "kubernetes.io/cluster/perf-cluster" = "shared"
     "kubernetes.io/role/elb"                      = 1
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/${lower(var.project_name)}-cluster" = "shared"
+    "kubernetes.io/cluster/perf-cluster" = "shared"
     "kubernetes.io/role/internal-elb"             = 1
   }
 
