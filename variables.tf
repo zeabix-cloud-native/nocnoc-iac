@@ -6,7 +6,7 @@ variable "region" {
 variable "project_name" {
   description = "Name of Project"
   type = string
-  default = "prod"
+  default = "non-prod"
 }
 
 variable "vpc_cidr_blocks" {
