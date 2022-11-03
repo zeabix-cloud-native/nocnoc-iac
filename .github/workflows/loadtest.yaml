@@ -105,7 +105,7 @@ jobs:
     name: 'Terraform Destroy'
     runs-on: ubuntu-latest
     if: always() 
-#    needs: Terraform_Plan
+    needs: Terraform_Apply
 #    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 #    environment:
 #      name: tf_destroy
