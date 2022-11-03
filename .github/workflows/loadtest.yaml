@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: tf_plan
-          path: ./tf_plan
+          path: ./tf_conf
           if-no-files-found: error
           retention-days: 1
   
@@ -83,7 +83,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: tf_plan
-          path: ./tf_plan
+          path: ./tf_conf
 
       - name: Terraform Init
         id: init
@@ -128,7 +128,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: tf_plan
-          path: ./tf_plan
+          path: ./tf_conf
 
       - name: Terraform Init
         id: init
