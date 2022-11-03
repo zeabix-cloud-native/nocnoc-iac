@@ -13,7 +13,7 @@ module "network" {
 module "eks" {
   source = "./modules/eks"
   cluster_name = "${var.project_name}-cluster"
-#  instance_types  = var.instance_types
+  instance_types  = var.instance_types
   cluster_version = var.cluster_version
   argocd_password = var.argocd_password
   vpc_id =  module.network.vpc_id
