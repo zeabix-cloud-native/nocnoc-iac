@@ -17,8 +17,8 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 module "eks_blueprints" {
-#  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.12.0"
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.12.0"
+#  source = "github.com/aws-ia/terraform-aws-eks-blueprints"
 
 
   cluster_name    = var.cluster_name
