@@ -52,7 +52,7 @@ jobs:
         run: terraform plan -no-color -input=false -out "tf_plan"
         continue-on-error: true
       
-      - run: mkdir -p tf_plan
+      - run: mkdir -p tf_conf
       
       - name: Upload TF Plan
         uses: actions/upload-artifact@v2
