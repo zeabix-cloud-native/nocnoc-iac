@@ -32,7 +32,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.2.9
+#          terraform_version: 1.2.9
           terraform_wrapper: false
 
       - name: Terraform Format
@@ -133,11 +133,11 @@ jobs:
 
       - name: Show Destroy plan
         id: destroy-plan
-        if: steps.apply.outcome == 'failure'
+        if: always()
         continue-on-error: true
         run: terraform plan -destroy
 
       - name: Destroy resources jobs
         id: destroy
-        if: steps.apply.outcome == 'failure'
+        if: always()
         run: terraform destroy -auto-approve
