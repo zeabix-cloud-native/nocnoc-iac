@@ -52,11 +52,13 @@ jobs:
         run: terraform plan -no-color -input=false -out "tf_plan"
         continue-on-error: true
       
+      - run: mkdir -p tf_plan
+      
       - name: Upload TF Plan
         uses: actions/upload-artifact@v2
         with:
           name: tf_plan
-          path: ./
+          path: ./tf_plan
           if-no-files-found: error
           retention-days: 1
   
@@ -126,7 +128,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: tf_plan
-          path: ./
+          path: ./tf_plan
 
       - name: Terraform Init
         id: init
