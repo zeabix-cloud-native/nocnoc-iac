@@ -10,7 +10,7 @@ jobs:
   Terraform_Plan:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || github.event_name != 'pull_request'
+#    if: github.event_name == 'push' || github.event_name != 'pull_request'
     permissions:
       pull-requests: write
 
@@ -113,9 +113,6 @@ jobs:
     runs-on: ubuntu-latest
     if: always() 
     needs: Terraform_Apply
-#    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-#    environment:
-#      name: tf_destroy
     
     steps: 
       - name: Checkout
@@ -148,8 +145,10 @@ jobs:
         id: get
         run: terraform get -no-color
 
+      - name: Terraform Plan Destroy
+        run: terraform plan -destroy -out=tfdestroy
+
       - name: Terraform Destroy
         id: destroy       
-#        run: terraform destroy "tf_plan" -input=false -auto-approve
-        run: terraform destroy "tf_plan"
+        run: terraform apply tfdestroy -auto-approve
 
