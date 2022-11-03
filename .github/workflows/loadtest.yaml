@@ -51,9 +51,7 @@ jobs:
         id: plan
         run: terraform plan -no-color -input=false -out "tf_plan"
         continue-on-error: true
-      
-#      - run: ls -lah ./
-      
+            
       - name: Upload TF Plan
         uses: actions/upload-artifact@v2
         with:
@@ -84,6 +82,12 @@ jobs:
         with:
           name: tf_plan
           path: ./
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+#          terraform_version: 1.2.9
+          terraform_wrapper: false
 
       - name: Terraform Init
         id: init
@@ -129,6 +133,12 @@ jobs:
         with:
           name: tf_plan
           path: ./
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+#          terraform_version: 1.2.9
+          terraform_wrapper: false
 
       - name: Terraform Init
         id: init
