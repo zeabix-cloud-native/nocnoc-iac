@@ -1,6 +1,6 @@
 region                   = "ap-southeast-1"
 
-availability_zones_count = 2
+#availability_zones_count = 2
 
 project_name             = "prod"
 
@@ -29,4 +29,4 @@ cluster_version          = "1.23"
 
 cluster_name             = "nocnoc_cluster"
 
-instance_types           = "m5.large"
+instance_types           = ["m5.large"]
