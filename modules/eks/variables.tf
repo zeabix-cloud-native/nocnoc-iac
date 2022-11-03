@@ -19,3 +19,8 @@ variable "cluster_version" {
   description = "Kubernetes cluster version"
   type        = string
 }
+
+variable "instance_types" {
+  description = "Type of instance"
+  type        = string
+}
