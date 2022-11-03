@@ -40,6 +40,10 @@ jobs:
         run: terraform fmt -check -diff 
         continue-on-error: true
 
+      - name: Terraform Version
+        id: version
+        run: terraform version
+
       - name: Terraform Init
         id: init
         run: terraform init
