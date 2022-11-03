@@ -1,7 +1,7 @@
 provider "kubernetes" {
-  host                   = module.eks_blueprints.eks_cluster_endpoint
+  host                  = module.eks_blueprints.eks_cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks_blueprints.eks_cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.this.token
+  token                 = data.aws_eks_cluster_auth.this.token
 }
 
 provider "helm" {
@@ -17,7 +17,7 @@ data "aws_eks_cluster_auth" "this" {
 }
 
 module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.12.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.14.0"
 
   cluster_name    = var.cluster_name
   cluster_version = "1.23"
@@ -46,7 +46,7 @@ module "eks_blueprints" {
 }
 
 module "eks_blueprints_kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.12.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.14.0"
 
   eks_cluster_id       = module.eks_blueprints.eks_cluster_id
   eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
@@ -99,5 +99,29 @@ module "eks_blueprints_kubernetes_addons" {
   }
 
   argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying add-ons
+
+}
+resource "helm_release" "prometheus-stack" {
+  depends_on = [
+    module.eks_blueprints
+  ]
+  name  = "prometheus-stack"
+
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "kube-prometheus-stack"
+  namespace  = "monitoring"
+  create_namespace = true
+
+}
+resource "helm_release" "opensearch" {
+  depends_on = [
+    module.eks_blueprints
+  ]
+  name  = "opensearch"
+
+  repository = "https://opensearch-project.github.io/helm-charts"
+  chart      = "opensearch"
+  namespace  = "opensearch"
+  create_namespace = true
 
 }
