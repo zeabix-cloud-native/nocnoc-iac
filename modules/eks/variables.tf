@@ -14,3 +14,8 @@ variable "vpc_id" {
 variable "subnet_ids" {
   description = "Subnet IDs for EKS"
 }
+
+variable "cluster_version" {
+  description = "Kubernetes cluster version"
+  type        = string
+}
