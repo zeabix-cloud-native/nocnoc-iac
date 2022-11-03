@@ -22,5 +22,5 @@ variable "cluster_version" {
 
 variable "instance_types" {
   description = "Type of instance"
-  type        = string
+  type        = list(string)
 }
