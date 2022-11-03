@@ -5,6 +5,12 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
+    inputs:
+      TFAction:
+        description: "Terraform Action- Apply or Destroy"     
+        required: false
+        default: "apply"
 
 jobs:
   terraform-setup:
@@ -124,20 +130,20 @@ jobs:
       - name: Terraform Apply
         id: apply
         continue-on-error: true
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+        if: ${{ inputs.TFAction == 'apply'}}  
+        run: terraform apply -input=false -auto-approve
 
 #      - name: Sleep for 1 minute
 #        run: sleep 1m
 #        shell: bash
 
-      - name: Show Destroy plan
-        id: destroy-plan
-        if: always()
-        continue-on-error: true
-        run: terraform plan -destroy
+#      - name: Show Destroy plan
+#        id: destroy-plan
+#        if: always()
+#        continue-on-error: true
+#        run: terraform plan -destroy
 
       - name: Destroy resources jobs
         id: destroy
-        if: always()
-        run: terraform destroy -auto-approve
+        if: always() 
+        run: terraform destroy -input=false
