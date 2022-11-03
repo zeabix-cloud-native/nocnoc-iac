@@ -28,7 +28,6 @@ jobs:
       - name: Save state
         run: echo "{name}={value}" >> $GITHUB_STATE
   
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -96,7 +95,7 @@ jobs:
         id: apply
         continue-on-error: true
 #        run: terraform apply "tf_plan" -input=false -auto-approve
-        run: terraform apply "tf_plan" -auto-approve
+        run: terraform apply "tf_plan"
 
 
 #      - name: Sleep for 1 minute
@@ -140,5 +139,5 @@ jobs:
       - name: Terraform Destroy
         id: destroy       
 #        run: terraform destroy "tf_plan" -input=false -auto-approve
-        run: terraform destroy "tf_plan" -auto-approve
+        run: terraform destroy "tf_plan"
 
