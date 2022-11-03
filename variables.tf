@@ -35,3 +35,13 @@ variable "cluster_version" {
   description = "Kubernetes cluster version"
   type        = string
 }
+
+variable "cluster_name" {
+  description = "Name of cluster - used by Terratest for e2e test automation"
+  type        = string
+}
+
+variable "instance_types" {
+  description = "Type of instance"
+  type        = string
+}

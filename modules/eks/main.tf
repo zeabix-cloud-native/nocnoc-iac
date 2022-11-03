@@ -28,7 +28,8 @@ module "eks_blueprints" {
   managed_node_groups = {
     mg_ondemand = {
       node_group_name = "managed-spot-ondemand"
-      instance_types  = ["m5.large"]
+#      instance_types  = ["m5.large"]
+      instance_types  = var.instance_types
       min_size        = 3
       max_size        = 9
       desired_size    = 3
@@ -36,7 +37,8 @@ module "eks_blueprints" {
     }
     mg_gpu = {
       node_group_name = "managed-gpu-ondemand"
-      instance_types  = ["m5.large"]
+#      instance_types  = ["m5.large"]
+      instance_types  = var.instance_types
       min_size        = 3
       max_size        = 9
       desired_size    = 3

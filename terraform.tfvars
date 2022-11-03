@@ -26,3 +26,7 @@ availability_zones       = {
 argocd_password          = "asdfqwer"
 
 cluster_version          = "1.23"
+
+cluster_name             = "nocnoc_cluster"
+
+instance_types           = "m5.large"
