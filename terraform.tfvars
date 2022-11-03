@@ -2,7 +2,7 @@ region                   = "ap-southeast-1"
 
 #availability_zones_count = 2
 
-project_name             = "prod"
+project_name             = "nocnoc-performance"
 
 vpc_cidr_blocks          = {
     "public_cidr_block" = "150.100.0.0/16"
@@ -29,4 +29,4 @@ cluster_version          = "1.23"
 
 cluster_name             = "nocnoc_cluster"
 
-instance_types           = ["m5.large"]
+instance_types           = ["t3.medium"]
