@@ -185,8 +185,8 @@ resource "aws_security_group" "node_group" {
 ##
 # KMS for encrypt secret
 ##
-resource "aws_kms_key" "eks_secrets" {
-  count = var.enable_kms ? 1 : 0
-  description = "KMS EKS Cluster"
-  tags = merge({ Name = "${local.tags_prefix}-kms-eks-secrets"}, var.tags)
-}
+##resource "aws_kms_key" "eks_secrets" {
+##  count = var.enable_kms ? 1 : 0
+##  description = "KMS EKS Cluster"
+##  tags = merge({ Name = "${local.tags_prefix}-kms-eks-secrets"}, var.tags)
+##}
