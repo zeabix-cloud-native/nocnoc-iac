@@ -139,4 +139,4 @@ jobs:
       - name: Destroy resources jobs
         id: destroy
         if: always() 
-        run: terraform destroy -input=false
+        run: terraform destroy -input=false -auto-approve
