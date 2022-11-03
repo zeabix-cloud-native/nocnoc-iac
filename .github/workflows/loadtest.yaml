@@ -32,7 +32,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.2.9
+#          terraform_version: 1.2.9
           terraform_wrapper: false
 
       - name: Terraform Format
@@ -46,7 +46,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        run: terraform init
+        run: terraform init --upgrade
       
       - name: Terraform Validate
         id: validate
