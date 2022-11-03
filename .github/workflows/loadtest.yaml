@@ -52,7 +52,7 @@ jobs:
         run: terraform plan -no-color -input=false -out "tf_plan"
         continue-on-error: true
       
-      - run: ls -lah ./
+#      - run: ls -lah ./
       
       - name: Upload TF Plan
         uses: actions/upload-artifact@v2
@@ -79,10 +79,10 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       
       - name: Download TF Plan
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: tf_plan
-#          path: ./tf_plan
+          path: ./
 
       - name: Terraform Init
         id: init
@@ -124,10 +124,10 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       
       - name: Download TF Plan
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: tf_plan
-#          path: ./tf_plan
+          path: ./
 
       - name: Terraform Init
         id: init
