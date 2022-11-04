@@ -81,15 +81,15 @@ module "eks_blueprints_kubernetes_addons" {
     ]
   }
 
-#  enable_cert_manager = true
-#  cert_manager_helm_config = {
-#    set_values = [
-#      {
-#        name  = "extraArgs[0]"
-#        value = "--enable-certificate-owner-ref=false"
-#      },
-#    ]
-#  }
+  enable_cert_manager = true
+  cert_manager_helm_config = {
+    set_values = [
+      {
+        name  = "extraArgs[0]"
+        value = "--enable-certificate-owner-ref=false"
+      },
+    ]
+  }
   enable_cert_manager_csi_driver = true
 ##  enable_argocd = true
   # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
