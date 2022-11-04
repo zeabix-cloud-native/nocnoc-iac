@@ -8,7 +8,7 @@ module "network" {
   project_name = var.project_name
   tags = merge({ Project = var.project_name}, var.tags)
   availability_zones = var.availability_zones
-#  enable_kms = var.enable_kms
+  enable_kms = var.enable_kms
 }
 module "eks" {
   source = "./modules/eks"
