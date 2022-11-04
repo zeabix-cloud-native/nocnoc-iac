@@ -10,9 +10,6 @@ jobs:
   Terraform_Plan:
     name: "Terraform Plan"
     runs-on: ubuntu-latest
-#    if: github.event_name == 'push' || github.event_name != 'pull_request'
-    permissions:
-      pull-requests: write
 
     steps:
       - name: Checkout
@@ -64,7 +61,6 @@ jobs:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
     needs: Terraform_Plan
-#    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     
     steps: 
       - name: Checkout
@@ -93,16 +89,11 @@ jobs:
         id: init
         run: terraform init
 
-      - name: Terraform Get
-        id: get
-        run: terraform get -no-color
-
       - name: Terraform Apply
         id: apply
         continue-on-error: true
 #        run: terraform apply "tf_plan" -input=false -auto-approve
         run: terraform apply "tf_plan"
-
 
 #      - name: Sleep for 1 minute
 #        run: sleep 1m
@@ -140,10 +131,6 @@ jobs:
       - name: Terraform Init
         id: init
         run: terraform init
-
-      - name: Terraform Get
-        id: get
-        run: terraform get -no-color
 
       - name: Terraform Plan Destroy
         run: terraform plan -destroy -out=tfdestroy
