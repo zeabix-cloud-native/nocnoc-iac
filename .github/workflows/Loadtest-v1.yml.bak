@@ -48,14 +48,14 @@ jobs:
         run: terraform plan -no-color -input=false -out "tf_plan"
         continue-on-error: true
             
-      - name: Upload TF Plan
-        uses: actions/upload-artifact@v2
-        with:
-          name: tf_plan
-          path: ./tf_plan/
-          if-no-files-found: error
-          retention-days: 1
-        continue-on-error: true
+#      - name: Upload TF Plan
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: tf_plan
+#          path: ./tf_plan/
+#          if-no-files-found: error
+#          retention-days: 1
+#        continue-on-error: true
 
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
@@ -72,7 +72,7 @@ jobs:
 
       - name: Update KubeConfig
         run: |
-          aws eks --region ap-southeast-1 update-kubeconfig --name nocnoc-performance-cluster
+          aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
 
       - name: Install and configure kubectl
         continue-on-error: true

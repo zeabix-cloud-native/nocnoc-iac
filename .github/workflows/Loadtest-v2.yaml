@@ -22,8 +22,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       
-      - name: Save state
-        run: echo "{name}={value}" >> $GITHUB_STATE
+#      - name: Save state
+#        run: echo "{name}={value}" >> $GITHUB_STATE
   
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -92,8 +92,16 @@ jobs:
       - name: Terraform Apply
         id: apply
         continue-on-error: true
-#        run: terraform apply "tf_plan" -input=false -auto-approve
         run: terraform apply "tf_plan"
+
+      - name: Upload tfstate
+        uses: actions/upload-artifact@v2
+        continue-on-error: true
+        with:
+          name: tfstate
+          path: ./terraform.tfstate
+          if-no-files-found: error
+          retention-days: 1
 
 #      - name: Sleep for 1 minute
 #        run: sleep 1m
@@ -116,10 +124,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
       
-      - name: Download TF Plan
+      - name: Download tfstate
         uses: actions/download-artifact@v3
         with:
-          name: tf_plan
+          name: terraform.tfstate
           path: ./
 
       - name: Setup Terraform
@@ -133,9 +141,9 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan Destroy
-        run: terraform plan -destroy -out=tfdestroy
+        run: terraform plan -destroy
 
       - name: Terraform Destroy
         id: destroy       
-        run: terraform apply tfdestroy -auto-approve
+        run: terraform destroy -input=false -auto-approve
 
