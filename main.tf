@@ -8,14 +8,14 @@ module "network" {
   project_name = var.project_name
   tags = merge({ Project = var.project_name}, var.tags)
   availability_zones = var.availability_zones
-  enable_kms = var.enable_kms
+#  enable_kms = var.enable_kms
 }
 module "eks" {
   source = "./modules/eks"
   cluster_name = "${var.project_name}-cluster"
   instance_types  = var.instance_types
   cluster_version = var.cluster_version
-  argocd_password = var.argocd_password
+#  argocd_password = var.argocd_password
   vpc_id =  module.network.vpc_id
   subnet_ids = concat(module.network.private_subnet_ids,module.network.public_subnet_ids)
 }

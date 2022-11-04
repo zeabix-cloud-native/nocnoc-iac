@@ -44,123 +44,125 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -input=false -out "tf_plan"
-        continue-on-error: true
+#        continue-on-error: true
             
-      - name: Upload TF Plan
-        uses: actions/upload-artifact@v2
-        with:
-          name: tf_plan
-          path: ./tf_plan/
-          if-no-files-found: error
-          retention-days: 1
-  
-  Terraform_Apply:
-    name: 'Terraform Apply'
-    runs-on: ubuntu-latest
-    needs: Terraform_Plan
-    
-    steps: 
-      - name: Checkout
-        uses: actions/checkout@master
-      
-      - name: Initial AWS Account
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      
-      - name: Download TF Plan
-        uses: actions/download-artifact@v3
-        with:
-          name: tf_plan
-          path: ./
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-#          terraform_version: 1.2.9
-          terraform_wrapper: false
-
-      - name: Terraform Init
-        id: init
-        run: terraform init
-
-      - name: Terraform Apply
-        id: apply
-        continue-on-error: true
-        run: terraform apply "tf_plan"
-
-      - name: Update KubeConfig
-        continue-on-error: true
-        run: |
-          aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
-
-      - name: Install and configure kubectl
-        continue-on-error: true
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-          echo "$(<kubectl.sha256) kubectl" | sha256sum --check
-
-          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-          kubectl version --short
-
-      - name: Test kubectl command
-        continue-on-error: true
-        run: |
-          kubectl cluster-info
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Upload tfstate
-        uses: actions/upload-artifact@v2
-        continue-on-error: true
-        with:
-          name: terraform.tfstate
-          path: ./terraform.tfstate
-          if-no-files-found: error
-          retention-days: 1
-
-  Terraform_Destroy:
-    name: 'Terraform Destroy'
-    runs-on: ubuntu-latest
-    if: always() 
-    needs: Terraform_Apply
-    
-    steps: 
-      - name: Checkout
-        uses: actions/checkout@master
-      
-      - name: Initial AWS Account
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      
-      - name: Download tfstate
-        uses: actions/download-artifact@v3
-        with:
-          name: terraform.tfstate
-          path: ./
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-#          terraform_version: 1.2.9
-          terraform_wrapper: false
-
-      - name: Terraform Init
-        id: init
-        run: terraform init
-
-      - name: Terraform Plan Destroy
-        run: terraform plan -destroy
-
-      - name: Terraform Destroy
-        id: destroy       
-        run: terraform destroy -input=false -auto-approve
+#      - name: Upload TF Plan
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: tf_plan
+#          path: ./tf_plan/
+#          if-no-files-found: error
+#          retention-days: 1
+#  
+#  Terraform_Apply:
+#    name: 'Terraform Apply'
+#    runs-on: ubuntu-latest
+#    needs: Terraform_Plan
+#    
+#    steps: 
+#      - name: Checkout
+#        uses: actions/checkout@master
+#      
+#      - name: Initial AWS Account
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ secrets.AWS_REGION }}
+#      
+#      - name: Download TF Plan
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: tf_plan
+#          path: ./
+#
+#      - name: Setup Terraform
+#        uses: hashicorp/setup-terraform@v2
+#        with:
+##          terraform_version: 1.2.9
+#          terraform_wrapper: false
+#
+#      - name: Terraform Init
+#        id: init
+#        run: terraform init
+#
+#      - name: Terraform Apply
+#        id: apply
+#        continue-on-error: true
+#        run: terraform apply "tf_plan"
+#
+#      - name: Upload tfstate
+#        uses: actions/upload-artifact@v2
+##        continue-on-error: true
+#        with:
+#          name: terraform.tfstate
+#          path: ./terraform.tfstate
+#          if-no-files-found: error
+#          retention-days: 1
+#
+#      - name: Login to Amazon ECR
+#        id: login-ecr
+#        uses: aws-actions/amazon-ecr-login@v1
+#
+#      - name: Update KubeConfig
+##        continue-on-error: true
+#        run: |
+#          aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+#
+#      - name: Install and configure kubectl
+##        continue-on-error: true
+#        run: |
+#          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+#          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+#          echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+#
+#          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+#          kubectl version --short
+#
+#      - name: Test kubectl command
+##        continue-on-error: true
+#        run: |
+#          kubectl cluster-info
+#
+#
+#
+#  Terraform_Destroy:
+#    name: 'Terraform Destroy'
+#    runs-on: ubuntu-latest
+#    if: always() 
+#    needs: Terraform_Apply
+#    
+#    steps: 
+#      - name: Checkout
+#        uses: actions/checkout@master
+#      
+#      - name: Initial AWS Account
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws-region: ${{ secrets.AWS_REGION }}
+#      
+#      - name: Download tfstate
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: terraform.tfstate
+#          path: ./
+#
+#      - name: Setup Terraform
+#        uses: hashicorp/setup-terraform@v2
+#        with:
+##          terraform_version: 1.2.9
+#          terraform_wrapper: false
+#
+#      - name: Terraform Init
+#        id: init
+#        run: terraform init
+#
+#      - name: Terraform Plan Destroy
+#        run: terraform plan -destroy
+#
+#      - name: Terraform Destroy
+#        id: destroy       
+#        run: terraform destroy -input=false -auto-approve
 
