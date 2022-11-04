@@ -20,5 +20,5 @@ output "region" {
 
 output "cluster_name" {
   description = "Kubernetes Cluster Name"
-  value       = module.eks.cluster_name
+  value       = module.eks.module.eks_blueprints.cluster_name
 }
