@@ -92,6 +92,7 @@ jobs:
         run: terraform apply "tf_plan"
 
       - name: Update KubeConfig
+        continue-on-error: true
         run: |
           aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
 
