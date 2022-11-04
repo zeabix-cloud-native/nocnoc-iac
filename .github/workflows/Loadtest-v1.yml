@@ -72,8 +72,7 @@ jobs:
 
       - name: Update KubeConfig
         run: |
-          aws eks --region $(terraform output -raw region) update-kubeconfig \
-          --name $(terraform output -raw cluster_name)
+          aws eks --region ap-southeast-1 update-kubeconfig --name nocnoc-performance-cluster
 
       - name: Install and configure kubectl
         continue-on-error: true
