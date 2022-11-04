@@ -61,10 +61,10 @@ jobs:
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
-#      - name: Terraform Apply
-#        id: apply
-#        continue-on-error: true
-#        run: terraform apply -input=false -auto-approve
+      - name: Terraform Apply
+        id: apply
+        continue-on-error: true
+        run: terraform apply -input=false -auto-approve
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -77,19 +77,22 @@ jobs:
           echo "$(<kubectl.sha256) kubectl" | sha256sum --check
 
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-          kubectl version --client
+          kubectl version --short
 
-#      - name: Update KubeConfig
-#        run: |
-#          aws eks --region $(terraform output -raw region) update-kubeconfig \
-#          --name $(terraform output -raw cluster_name)
+      - name: Update KubeConfig
+        run: |
+          aws eks --region $(terraform output -raw region) update-kubeconfig \
+          --name $(terraform output -raw cluster_name)
 
+      - name: Test kubectl command
+        run: |
+          kubectl cluster-info > cluster-info.txt
 
 #      - name: Sleep for 1 minute
 #        run: sleep 1m
 #        shell: bash
 
-#      - name: Destroy resources jobs
-#        id: destroy
-#        if: always() 
-#        run: terraform destroy -input=false -auto-approve
+      - name: Destroy resources jobs
+        id: destroy
+        if: always() 
+        run: terraform destroy -input=false -auto-approve
