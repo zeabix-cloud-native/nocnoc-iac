@@ -7,7 +7,7 @@ on:
 
 jobs:
   terraform-setup:
-    name: "Terraform"
+    name: "Performance Cluster"
     runs-on: ubuntu-latest
 
     steps:
@@ -70,7 +70,13 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Update KubeConfig
+        run: |
+          aws eks --region $(terraform output -raw region) update-kubeconfig \
+          --name $(terraform output -raw cluster_name)
+
       - name: Install and configure kubectl
+        continue-on-error: true
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
@@ -79,14 +85,10 @@ jobs:
           sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
           kubectl version --short
 
-      - name: Update KubeConfig
-        run: |
-          aws eks --region $(terraform output -raw region) update-kubeconfig \
-          --name $(terraform output -raw cluster_name)
-
       - name: Test kubectl command
+        continue-on-error: true
         run: |
-          kubectl cluster-info > cluster-info.txt
+          kubectl cluster-info
 
 #      - name: Sleep for 1 minute
 #        run: sleep 1m
