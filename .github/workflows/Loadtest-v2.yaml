@@ -153,6 +153,10 @@ jobs:
 #        continue-on-error: true
         run: |
           kubectl apply -f blog-service-deployment.yaml -f blog-service-service.yaml
+      
+      - name: Verify blog-service applications
+        run: |
+          kubectl logs -l app=blog-service
 
   Terraform_Destroy:
     name: 'Terraform Destroy'
@@ -183,7 +187,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: config
-          path: /home/runner/.kube/config
+          path: /home/runner/.kube/
       
       - name: Test kubeconfig
         continue-on-error: true
