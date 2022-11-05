@@ -111,10 +111,10 @@ jobs:
 
       - name: Upload kubeconfig
         uses: actions/upload-artifact@v2
-#        continue-on-error: true
+        continue-on-error: true
         with:
           name: config
-          path: $HOME/.kube/config
+          path: /home/runner/.kube/config
           if-no-files-found: error
           retention-days: 1
 
@@ -172,22 +172,26 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
       
       - name: Download tfstate
+        if: always()
         uses: actions/download-artifact@v3
         with:
           name: terraform.tfstate
           path: ./
 
       - name: Download kubeconfig
+        continue-on-error: true
         uses: actions/download-artifact@v3
         with:
           name: config
-          path: $HOME/.kube/config
+          path: /home/runner/.kube/config
       
       - name: Test kubeconfig
+        continue-on-error: true
         run: |
           kubectl cluster-info
 
       - name: Delete manifest
+        continue-on-error: true
         run: |
           kubectl delete -f blog-service-deployment.yaml -f blog-service-service.yaml
 
@@ -205,6 +209,7 @@ jobs:
         run: terraform plan -destroy
 
       - name: Terraform Destroy
+        if: always()
         id: destroy       
         run: terraform destroy -input=false -auto-approve
 
