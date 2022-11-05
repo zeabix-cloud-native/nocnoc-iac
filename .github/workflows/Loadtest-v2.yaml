@@ -109,22 +109,50 @@ jobs:
         run: |
           aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
 
-      - name: Install and configure kubectl
+      - name: Upload kubeconfig
+        uses: actions/upload-artifact@v2
 #        continue-on-error: true
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-          echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+        with:
+          name: config
+          path: $HOME/.kube/config
+          if-no-files-found: error
+          retention-days: 1
 
-          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-          kubectl version --short
+#      - name: Install and configure kubectl
+##        continue-on-error: true
+#        run: |
+#          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+#          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+#          echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+#
+#          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+#          kubectl version --short
+
+      - name: Configure Kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: 'v1.23.6'
+        id: install
 
       - name: Test kubectl command
 #        continue-on-error: true
         run: |
           kubectl cluster-info
 
-
+      - name: Deploy configmaps and secrets
+#        continue-on-error: true
+        run: |
+          kubectl apply -f mongodb-configmap.yaml -f mongodb-secrets.yaml
+      
+      - name: Verify configmaps and secrets
+        run: |
+          kubectl get configmap 
+          kubectl get secret
+      
+      - name: Deploy blog-service applications
+#        continue-on-error: true
+        run: |
+          kubectl apply -f blog-service-deployment.yaml -f blog-service-service.yaml
 
   Terraform_Destroy:
     name: 'Terraform Destroy'
@@ -148,6 +176,20 @@ jobs:
         with:
           name: terraform.tfstate
           path: ./
+
+      - name: Download kubeconfig
+        uses: actions/download-artifact@v3
+        with:
+          name: config
+          path: $HOME/.kube/config
+      
+      - name: Test kubeconfig
+        run: |
+          kubectl cluster-info
+
+      - name: Delete manifest
+        run: |
+          kubectl delete -f blog-service-deployment.yaml -f blog-service-service.yaml
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
