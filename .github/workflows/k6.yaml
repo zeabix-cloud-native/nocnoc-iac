@@ -190,7 +190,7 @@ jobs:
         with:
           filename: ./k6/http_get.js
 #          flags: --out json=results.json --address "https://www.google.com" --vus 100 --duration 10s
-          flags: --out json=results.json
+          flags: --out json=results.json --vus 50 --duration 10s
 
 
       - name: Upload performance test results
