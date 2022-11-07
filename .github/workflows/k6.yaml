@@ -162,7 +162,7 @@ jobs:
         run: |
           export public_ip=www.gec.co.th
           echo $public_ip
-          URL=https://$public_ip:8080/blogs/v1/blogs
+          URL=https://$public_ip/
           
           for i in {1..10}; do
              sleep 10  
