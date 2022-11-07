@@ -178,11 +178,12 @@ jobs:
           exit 1
 
       - name: Change URL
+        continue-on-error: true
         shell: bash
         run: |
           export public_ip=www.gec.co.th
           echo $public_ip
-          sed -i sed 's/127.0.0.1/'$public_ip'/' ./k6/http_get.js
+          sed -i 's/127.0.0.1/'$public_ip'/g' ./k6/http_get.js
 
       - name: Run k6 test
         uses: grafana/k6-action@v0.2.0
