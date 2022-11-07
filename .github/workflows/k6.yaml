@@ -49,14 +49,17 @@ jobs:
         with:
           filename: ./k6/http_get.js
 #          flags: --out json=results.json --address "https://www.google.com" --vus 100 --duration 10s
-          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --vus 50 --duration 10s
+          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --vus 50 --duration 10s --out html=result.html
 
+      - name: Check file before upload
+        run: |
+          ls -lah
 
       - name: Upload performance test results
         uses: actions/upload-artifact@v3
         with:
           name: k6-report
-          path: ./stdout
+          path: ./result.html
 
 #  K6_Load_testing:
 #    name: 'K6 load testing'
