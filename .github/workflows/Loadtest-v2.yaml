@@ -57,6 +57,7 @@ jobs:
   Terraform_Apply:
     name: 'Terraform Apply'
     runs-on: ubuntu-latest
+    container: docker://golang:1.17-alpine
     needs: Terraform_Plan
     
     steps: 
@@ -149,12 +150,17 @@ jobs:
         run: |
           kubectl logs -l app=blog-service
           kubectl get svc -l app=blog-service 
+      
+      - name: Describe Classic LoadBalancer
+        run: |
+          export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
+          echo $public_ip
 
       - name: Verify blog-service started
         continue-on-error: true
         shell: bash
         run: |
-          export public_ip=blog-service.default.svc.cluster.local
+          export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
           echo $public_ip
           URL=http://$public_ip:8080
           
@@ -171,11 +177,27 @@ jobs:
           done
           exit 1
 
-      - name: Describe Classic LoadBalancer
+      - name: Change URL
+        shell: bash
         run: |
           export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
           echo $public_ip
-          
+          export vpc_id=$(terraform output -raw vpc_id)
+          echo $vpc_id
+          sed -i sed "s/127.0.0.1/$public_ip/g" ./k6/http_get.js
+
+      - name: Run k6 test
+        uses: grafana/k6-action@v0.2.0
+        with:
+          filename: ./k6/http_get.js
+          flags: --out json=results.json
+
+      - name: Upload performance test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-report
+          path: results.json
+
 #  K6_Load_testing:
 #    name: 'K6 load testing'
 #    runs-on: ubuntu-latest
@@ -187,12 +209,6 @@ jobs:
 #      - name: Checkout
 #        uses: actions/checkout@master
 #
-#      - name: Run local k6 test
-#        uses: grafana/k6-action@v0.2.0
-#        with:
-#          filename: ./k6/http_get.js
-#          flags: --out json=results.json
-#
 ##      - name: Install xk6
 ##        run: go install go.k6.io/xk6/cmd/xk6@latest
 ##
@@ -202,17 +218,12 @@ jobs:
 ##      - name: Run k6 extension test
 ##        run: ./k6 run k6/http_get.js
 #
-#      - name: Upload performance test results
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: k6-report
-#          path: results.json
+
 
   Terraform_Destroy:
     name: 'Terraform Destroy'
     runs-on: ubuntu-latest
     if: always() 
-#    needs: [Terraform_Apply, K6_Loadtesting]
     needs: [Terraform_Apply]
 
     
