@@ -10,7 +10,6 @@ export const options = {
 };
 export default function () {
 //  http.get('https://127.0.0.1:8080/blogs/v1/blogs');
-//  http.get('https://www.gec.co.th');
   http.get('https://127.0.0.1');
   sleep(1);
 }

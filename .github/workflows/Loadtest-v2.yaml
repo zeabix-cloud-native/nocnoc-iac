@@ -156,13 +156,34 @@ jobs:
           export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
           echo $public_ip
 
-      - name: Verify blog-service started
+      - name: Verify blog-service started (https)
         continue-on-error: true
         shell: bash
         run: |
           export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
           echo $public_ip
           URL=https://$public_ip:8080/blogs/v1/blogs
+          
+          for i in {1..10}; do
+             sleep 10  
+             OUTPUT=$(curl -s -o /dev/null -w "%{http_code}\n" -m 5 $URL)
+             if [[ $OUTPUT == 200 ]]; then
+                 echo "$URL is up, returned $OUTPUT"
+                 exit 0
+             else
+                 echo "$URL is not up, returned $OUTPUT"
+                 echo "retry $i from 10"
+             fi
+          done
+          exit 1
+
+      - name: Verify blog-service started (http)
+        continue-on-error: true
+        shell: bash
+        run: |
+          export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
+          echo $public_ip
+          URL=http://$public_ip:8080/blogs/v1/blogs
           
           for i in {1..10}; do
              sleep 10  
@@ -190,13 +211,13 @@ jobs:
         uses: grafana/k6-action@v0.2.0
         with:
           filename: ./k6/http_get.js
-          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --log-output=stdout --vus 50 --duration 10s
+          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --vus 50 --duration 10s
 
       - name: Upload performance test results
         uses: actions/upload-artifact@v3
         with:
           name: k6-report
-          path: results.json
+          path: ./result.html
 
 #  K6_Load_testing:
 #    name: 'K6 load testing'
@@ -255,6 +276,11 @@ jobs:
         continue-on-error: true
         run: |
           kubectl cluster-info
+
+      - name: Delete all resources in argocd namespace
+        continue-on-error: true
+        run: |
+          kubectl delete all --all -n argocd
 
       - name: Delete manifest
         continue-on-error: true
