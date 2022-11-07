@@ -184,7 +184,7 @@ jobs:
           echo $public_ip
           export vpc_id=$(terraform output -raw vpc_id)
           echo $vpc_id
-          sed -i sed 's/127.0.0.1/'$public_ip'/' ./k6/http_get.js
+          sed -i 's/127.0.0.1/'$public_ip'/g' ./k6/http_get.js
 
       - name: Run k6 test
         uses: grafana/k6-action@v0.2.0
