@@ -93,6 +93,7 @@ module "eks_blueprints_kubernetes_addons" {
   enable_argocd = true
   # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
   argocd_helm_config = {
+    timeout          = "1200"
     set_sensitive = [
       {
         name  = "configs.secret.argocdServerAdminPassword"
