@@ -1,0 +1,80 @@
+name: "k6"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+#
+  Terraform_Plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Verify blog-service started
+        continue-on-error: true
+        shell: bash
+        run: |
+          export public_ip=www.gec.co.th
+          echo $public_ip
+          URL=https://$public_ip/
+          
+          for i in {1..10}; do
+             sleep 10  
+             OUTPUT=$(curl -s -o /dev/null -w "%{http_code}\n" -m 5 $URL)
+             if [[ $OUTPUT == 200 ]]; then
+                 echo "$URL is up, returned $OUTPUT"
+                 exit 0
+             else
+                 echo "$URL is not up, returned $OUTPUT"
+                 echo "retry $i from 10"
+             fi
+          done
+          exit 1
+
+      - name: Change URL
+        continue-on-error: true
+        shell: bash
+        run: |
+          export public_ip=www.gec.co.th
+          echo $public_ip
+          sed -i 's/127.0.0.1/'$public_ip'/g' ./k6/http_get.js
+
+      - name: Run k6 test
+        uses: grafana/k6-action@v0.2.0
+        with:
+          filename: ./k6/http_get.js
+#          flags: --out json=results.json --address "https://www.google.com" --vus 100 --duration 10s
+          flags: --out json=results.json --vus 50 --duration 10s
+
+
+      - name: Upload performance test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-report
+          path: results.json
+
+#  K6_Load_testing:
+#    name: 'K6 load testing'
+#    runs-on: ubuntu-latest
+#    container: docker://golang:1.17-alpine
+#    needs: Terraform_Apply
+#    continue-on-error: true
+#    
+#    steps: 
+#      - name: Checkout
+#        uses: actions/checkout@master
+#
+##      - name: Install xk6
+##        run: go install go.k6.io/xk6/cmd/xk6@latest
+##
+##      - name: Build xk6-counter binary
+##        run: xk6 build --with github.com/grafana/xk6-output-prometheus-remote
+##
+##      - name: Run k6 extension test
+##        run: ./k6 run k6/http_get.js
+#
