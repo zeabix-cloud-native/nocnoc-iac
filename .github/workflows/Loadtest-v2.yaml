@@ -173,8 +173,9 @@ jobs:
 
       - name: Describe Classic LoadBalancer
         run: |
-          aws elb describe-load-balancers
-      
+          export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
+          echo $public_ip
+          
 #  K6_Load_testing:
 #    name: 'K6 load testing'
 #    runs-on: ubuntu-latest
