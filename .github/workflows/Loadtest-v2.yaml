@@ -208,7 +208,9 @@ jobs:
     name: 'Terraform Destroy'
     runs-on: ubuntu-latest
     if: always() 
-    needs: [Terraform_Apply, K6_Loadtesting]
+#    needs: [Terraform_Apply, K6_Loadtesting]
+    needs: [Terraform_Apply]
+
     
     steps: 
       - name: Checkout
