@@ -118,16 +118,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-#      - name: Install and configure kubectl
-##        continue-on-error: true
-#        run: |
-#          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-#          curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-#          echo "$(<kubectl.sha256) kubectl" | sha256sum --check
-#
-#          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-#          kubectl version --short
-
       - name: Configure Kubectl
         uses: azure/setup-kubectl@v2.0
         with:
@@ -158,11 +148,67 @@ jobs:
         run: |
           kubectl logs -l app=blog-service
 
+      - name: Describe Classic LoadBalancer
+        run: |
+          aws elb describe-load-balancers
+
+#      - name: Verify blog-service started
+#        shell: bash
+#        run: |
+#          export public_ip=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output=text)
+#          echo $public_ip
+#          URL=http://$public_ip:8080
+#          
+#          for i in {1..10}; do
+#             sleep 10  
+#             OUTPUT=$(curl -s -o /dev/null -w "%{http_code}\n" -m 5 $URL)
+#             if [[ $OUTPUT == 200 ]]; then
+#                 echo "$URL is up, returned $OUTPUT"
+#                 exit 0
+#             else
+#                 echo "$URL is not up, returned $OUTPUT"
+#                 echo "retry $i from 10"
+#             fi
+#          done
+#          exit 1
+      
+#  K6_Load_testing:
+#    name: 'K6 load testing'
+#    runs-on: ubuntu-latest
+#    container: docker://golang:1.17-alpine
+#    needs: Terraform_Apply
+#    continue-on-error: true
+#    
+#    steps: 
+#      - name: Checkout
+#        uses: actions/checkout@master
+#
+#      - name: Run local k6 test
+#        uses: grafana/k6-action@v0.2.0
+#        with:
+#          filename: ./k6/http_get.js
+#          flags: --out json=results.json
+#
+##      - name: Install xk6
+##        run: go install go.k6.io/xk6/cmd/xk6@latest
+##
+##      - name: Build xk6-counter binary
+##        run: xk6 build --with github.com/grafana/xk6-output-prometheus-remote
+##
+##      - name: Run k6 extension test
+##        run: ./k6 run k6/http_get.js
+#
+#      - name: Upload performance test results
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: k6-report
+#          path: results.json
+
   Terraform_Destroy:
     name: 'Terraform Destroy'
     runs-on: ubuntu-latest
     if: always() 
-    needs: Terraform_Apply
+    needs: [Terraform_Apply, K6_Loadtesting]
     
     steps: 
       - name: Checkout
