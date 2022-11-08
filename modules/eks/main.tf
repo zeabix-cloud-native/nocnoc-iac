@@ -106,8 +106,9 @@ module "eks_blueprints_kubernetes_addons" {
   argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying add-ons
 
   argocd_applications     = {
-    blog-service = {
+    blogs-service = {
       path                = "chart"
+      namespace           = "argocd"
       lint                = true
       repo_url            = "https://github.com/amornc/nocnoc-iac.git"
       values              = {}

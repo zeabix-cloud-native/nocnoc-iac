@@ -24,7 +24,7 @@ version: 0.1.0
 appVersion: "1.16.0"
 keywords:
   - demo
-  - blog-service
+  - blogs-service
 home: https://github.com/zeabix-cloud-native/nocnoc-iac
 maintainers:
   - name: Zeabix
