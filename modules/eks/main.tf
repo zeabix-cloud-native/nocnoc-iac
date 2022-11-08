@@ -107,6 +107,7 @@ module "eks_blueprints_kubernetes_addons" {
 
   argocd_applications     = {
     blog-service = {
+      create_namespace    = true
       namespace           = "default"
       path                = "chart"
       repo_url            = "https://github.com/amornc/nocnoc-iac.git"
