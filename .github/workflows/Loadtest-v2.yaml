@@ -205,6 +205,11 @@ jobs:
         with:
           name: k6-report
           path: ./result.html
+      
+      # For POC only
+      - name: Sleep for 30 seconds
+        run: sleep 5m
+        shell: bash
 
 #  K6_Load_testing:
 #    name: 'K6 load testing'
