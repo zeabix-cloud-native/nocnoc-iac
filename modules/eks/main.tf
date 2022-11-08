@@ -90,6 +90,7 @@ module "eks_blueprints_kubernetes_addons" {
     ]
   }
   enable_cert_manager_csi_driver = true
+
   enable_argocd = true
   # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
   argocd_helm_config = {
@@ -105,14 +106,14 @@ module "eks_blueprints_kubernetes_addons" {
   argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying add-ons
 
   argocd_applications     = {
-  infra = {
-    namespace             = "default"
-    path                  = "charts"
-    repo_url              = "https://github.com/amornc/nocnoc-iac.git"
-#    values                = {}
-    add_on_application    = true # Indicates the root add-on application.
-    type                  = "helm"
-  }
+    infra = {
+      namespace           = "default"
+      path                = "chart"
+      repo_url            = "https://github.com/amornc/nocnoc-iac.git"
+      values              = {}
+      add_on_application  = false # Indicates the root add-on application.
+#      type                = "helm"
+    }
   }
 
 }
