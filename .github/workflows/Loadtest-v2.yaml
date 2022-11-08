@@ -140,8 +140,8 @@ jobs:
       - name: Verify blog-service applications
         continue-on-error: true
         run: |
-          kubectl logs -l app=blog-service -n argocd
-          kubectl get svc -l app=blog-service -n argocd
+          kubectl logs -l app=blogs-service -n argocd
+          kubectl get svc -l app=blogs-service -n argocd
 
       - name: Upload tfstate
         uses: actions/upload-artifact@v2
