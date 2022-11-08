@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.blog-service.name }}
+  labels:
+    app: {{ .Values.blog-service.name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.blog-service.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.blog-service.name }}
+    spec:
+      containers:
+      - name: {{ .Values.blog-service.name }}
+        image: {{ .Values.blog-service.image }}:{{ .Values.blog-service.version }}
+        ports:
+        - containerPort: {{ .Values.blog-service.container.port }}
+        env:
+        - name: MONGO_CONNNECTION_URL
+          valueFrom:
+            configMapKeyRef:
+                name: {{ .Values.blog-service.config.name }}
+                key: MONGO_CONNNECTION_URL
+        - name: MONGO_DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+                name: {{ .Values.blog-service.config.name }}
+                key: MONGO_DATABASE_NAME
+        - name: MONGO_COLLECTION_NAME
+          valueFrom:
+            configMapKeyRef:
+                name: {{ .Values.blog-service.config.name }}
+                key: MONGO_COLLECTION_NAME

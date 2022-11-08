@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.blog-service.name }}
+  labels:
+    app: {{ .Values.blog-service.name }}
+spec:
+  ports:
+  - port: {{ .Values.blog-service.service.port }}
+    protocol: {{ .Values.blog-service.service.protocol }}
+  selector:
+    app: {{ .Values.blog-service.name }}
+  type: {{ .Values.blog-service.service.type }}

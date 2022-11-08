@@ -1,0 +1,23 @@
+replicas: 1
+blog-service:
+  name: blog-service
+  image: 802564302645.dkr.ecr.ap-southeast-1.amazonaws.com/blog-service
+  version: error
+  container:
+    port: 8080
+  service:
+    type: LoadBalancer
+    port: 8080
+    protocol: TCP
+  config:
+    name: mongo-config
+    data:
+       - key: MONGO_CONNNECTION_URL
+         value: "mongodb+srv://adminuser:snODcIVpzX6xPJiX@blogs.nbsxxog.mongodb.net/blogs"
+       - key: MONGO_DATABASE_NAME
+         value: "blogs"
+       - key: MONGO_COLLECTION_NAME
+         value: "blogs"
+
+
+
