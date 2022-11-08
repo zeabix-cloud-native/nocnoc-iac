@@ -20,8 +20,8 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          aws-region: ${{ secrets.AWS_REGION }}
-          aws-region: ap-southeast-1
+          aws-region: ${{ secrets.AWS_REGION }}
+#          aws-region: ap-southeast-1
           mask-aws-account-id: false
   
       - name: Setup Terraform
@@ -46,256 +46,253 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -input=false -out "tf_plan"
-#        continue-on-error: true
             
-#      - name: Upload TF Plan
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: tf_plan
-#          path: ./tf_plan/
-#          if-no-files-found: error
-#          retention-days: 1
-#  
-#  Terraform_Apply:
-#    name: 'Terraform Apply'
+      - name: Upload TF Plan
+        uses: actions/upload-artifact@v2
+        with:
+          name: tf_plan
+          path: ./tf_plan/
+          if-no-files-found: error
+          retention-days: 1
+  
+  Terraform_Apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+#    container: docker://golang:1.17-alpine
+    needs: Terraform_Plan
+    
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@master
+      
+      - name: Initial AWS Account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}  # Uncomment when finished POC
+#          aws-region: ap-southeast-1              # Comment when finished POC
+          mask-aws-account-id: false 
+      
+      - name: Download TF Plan
+        uses: actions/download-artifact@v3
+        with:
+          name: tf_plan
+          path: ./
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Apply
+        id: apply
+        continue-on-error: true
+        run: terraform apply "tf_plan"
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Update KubeConfig
+        continue-on-error: true
+        run: |
+          aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
+
+      - name: Configure Kubectl
+        uses: azure/setup-kubectl@v2.0
+        with:
+          version: 'v1.23.6'
+        id: install
+
+      - name: Test kubectl command
+        continue-on-error: true
+        run: |
+          kubectl cluster-info
+
+#      # Change this steps when you want to deployment
+#      - name: Deploy configmaps and secrets
+#        continue-on-error: true
+#        run: |
+#          kubectl apply -f mongodb-configmap.yaml -f mongodb-secrets.yaml
+      
+      # Delete this steps when you want to deployment
+      - name: Verify configmaps and secrets
+        run: |
+          kubectl get configmap 
+          kubectl get secret
+      
+#      # Delete this steps when you want to deployment
+#      - name: Deploy blog-service applications
+#        continue-on-error: true
+#        run: |
+#          # Apply the manifest
+#          kubectl apply -f blog-service-deployment.yaml -f blog-service-service.yaml
+#
+#          # Check service
+#          kubectl logs -l app=blog-service
+      
+      # Delete this steps when you want to deployment
+      - name: Verify blog-service applications
+        continue-on-error: true
+        run: |
+          kubectl logs -l app=blog-service
+          kubectl get svc -l app=blog-service 
+
+      - name: Upload tfstate
+        uses: actions/upload-artifact@v2
+        continue-on-error: true
+        with:
+          name: terraform.tfstate
+          path: ./terraform.tfstate
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload kubeconfig
+        uses: actions/upload-artifact@v2
+        continue-on-error: true
+        with:
+          name: config
+          path: /home/runner/.kube/config
+          if-no-files-found: error
+          retention-days: 1
+           
+#      # This jobs uses for POC
+#      - name: Describe Classic LoadBalancer
+#        run: |
+#          export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
+#          echo $public_ip
+
+      - name: Verify application started (https)
+        continue-on-error: true
+        shell: bash
+        run: |
+          URL=https://${{ secrets.URL }}
+          
+          for i in {1..10}; do
+             sleep 10  
+             OUTPUT=$(curl -s -o /dev/null -w "%{http_code}\n" -m 5 $URL)
+             if [[ $OUTPUT == 200 ]]; then
+                 echo "$URL is up, returned $OUTPUT"
+                 exit 0
+             else
+                 echo "$URL is not up, returned $OUTPUT"
+                 echo "retry $i from 10"
+             fi
+          done
+          exit 1
+
+      # This jobs uses for POC
+#      - name: Change URL
+#        shell: bash
+#        run: |
+#          sed -i 's/127.0.0.1/'${{ secrets.AWS_ACCESS_KEY_ID }}'/g' ./k6/http_get.js
+
+      - name: Run k6 test
+        uses: grafana/k6-action@v0.2.0
+        with:
+          filename: ./k6/http_get.js
+          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --vus 50 --duration 10s
+
+      - name: Upload performance test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-report
+          path: ./result.html
+      
+      # For POC only
+      - name: Sleep for 30 seconds
+        run: sleep 5m
+        shell: bash
+
+#  K6_Load_testing:
+#    name: 'K6 load testing'
 #    runs-on: ubuntu-latest
-##    container: docker://golang:1.17-alpine
-#    needs: Terraform_Plan
+#    container: docker://golang:1.17-alpine
+#    needs: Terraform_Apply
+#    continue-on-error: true
 #    
 #    steps: 
 #      - name: Checkout
 #        uses: actions/checkout@master
-#      
-#      - name: Initial AWS Account
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-##          aws-region: ${{ secrets.AWS_REGION }}  # Uncomment when finished POC
-#          aws-region: ap-southeast-1              # Comment when finished POC
-#          mask-aws-account-id: false 
-#      
-#      - name: Download TF Plan
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: tf_plan
-#          path: ./
 #
-#      - name: Setup Terraform
-#        uses: hashicorp/setup-terraform@v2
-#        with:
-##          terraform_version: 1.2.9
-#          terraform_wrapper: false
+##      - name: Install xk6
+##        run: go install go.k6.io/xk6/cmd/xk6@latest
+##
+##      - name: Build xk6-counter binary
+##        run: xk6 build --with github.com/grafana/xk6-output-prometheus-remote
+##
+##      - name: Run k6 extension test
+##        run: ./k6 run k6/http_get.js
 #
-#      - name: Terraform Init
-#        id: init
-#        run: terraform init
-#
-#      - name: Terraform Apply
-#        id: apply
-#        continue-on-error: true
-#        run: terraform apply "tf_plan"
-#
-#      - name: Login to Amazon ECR
-#        id: login-ecr
-#        uses: aws-actions/amazon-ecr-login@v1
-#
-#      - name: Update KubeConfig
-#        continue-on-error: true
-#        run: |
-#          aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terraform output -raw cluster_name)
-#
-#      - name: Configure Kubectl
-#        uses: azure/setup-kubectl@v2.0
-#        with:
-#          version: 'v1.23.6'
-#        id: install
-#
-#      - name: Test kubectl command
+
+
+  Terraform_Destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    if: always() 
+    needs: [Terraform_Apply]
+
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@master
+      
+      - name: Initial AWS Account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+#          aws-region: ap-southeast-1
+          mask-aws-account-id: false
+      
+      - name: Download tfstate
+        if: always()
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform.tfstate
+          path: ./
+
+      - name: Download kubeconfig
+        continue-on-error: true
+        uses: actions/download-artifact@v3
+        with:
+          name: config
+          path: /home/runner/.kube/
+      
+#      - name: Test kubeconfig
 #        continue-on-error: true
 #        run: |
 #          kubectl cluster-info
-#
-##      # Change this steps when you want to deployment
-##      - name: Deploy configmaps and secrets
-##        continue-on-error: true
-##        run: |
-##          kubectl apply -f mongodb-configmap.yaml -f mongodb-secrets.yaml
-#      
-#      # Delete this steps when you want to deployment
-#      - name: Verify configmaps and secrets
-#        run: |
-#          kubectl get configmap 
-#          kubectl get secret
-#      
-##      # Delete this steps when you want to deployment
-##      - name: Deploy blog-service applications
-##        continue-on-error: true
-##        run: |
-##          # Apply the manifest
-##          kubectl apply -f blog-service-deployment.yaml -f blog-service-service.yaml
-##
-##          # Check service
-##          kubectl logs -l app=blog-service
-#      
-#      # Delete this steps when you want to deployment
-#      - name: Verify blog-service applications
+
+#      - name: Delete all resources in argocd namespace
 #        continue-on-error: true
 #        run: |
-#          kubectl logs -l app=blog-service
-#          kubectl get svc -l app=blog-service 
-#
-#      - name: Upload tfstate
-#        uses: actions/upload-artifact@v2
+#          kubectl delete all --all -n argocd
+
+#      - name: Delete manifest
 #        continue-on-error: true
-#        with:
-#          name: terraform.tfstate
-#          path: ./terraform.tfstate
-#          if-no-files-found: error
-#          retention-days: 1
-#
-#      - name: Upload kubeconfig
-#        uses: actions/upload-artifact@v2
-#        continue-on-error: true
-#        with:
-#          name: config
-#          path: /home/runner/.kube/config
-#          if-no-files-found: error
-#          retention-days: 1
-#           
-##      # This jobs uses for POC
-##      - name: Describe Classic LoadBalancer
-##        run: |
-##          export public_ip=$(aws elb describe-load-balancers --query "LoadBalancerDescriptions[?VPCId=='$(terraform output -raw vpc_id)']|[].DNSName" --output text)
-##          echo $public_ip
-#
-#      - name: Verify application started (https)
-#        continue-on-error: true
-#        shell: bash
 #        run: |
-#          URL=https://${{ secrets.URL }}
-#          
-#          for i in {1..10}; do
-#             sleep 10  
-#             OUTPUT=$(curl -s -o /dev/null -w "%{http_code}\n" -m 5 $URL)
-#             if [[ $OUTPUT == 200 ]]; then
-#                 echo "$URL is up, returned $OUTPUT"
-#                 exit 0
-#             else
-#                 echo "$URL is not up, returned $OUTPUT"
-#                 echo "retry $i from 10"
-#             fi
-#          done
-#          exit 1
-#
-#      # This jobs uses for POC
-##      - name: Change URL
-##        shell: bash
-##        run: |
-##          sed -i 's/127.0.0.1/'${{ secrets.AWS_ACCESS_KEY_ID }}'/g' ./k6/http_get.js
-#
-#      - name: Run k6 test
-#        uses: grafana/k6-action@v0.2.0
-#        with:
-#          filename: ./k6/http_get.js
-#          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --vus 50 --duration 10s
-#
-#      - name: Upload performance test results
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: k6-report
-#          path: ./result.html
-#      
-#      # For POC only
-#      - name: Sleep for 30 seconds
-#        run: sleep 5m
-#        shell: bash
-#
-##  K6_Load_testing:
-##    name: 'K6 load testing'
-##    runs-on: ubuntu-latest
-##    container: docker://golang:1.17-alpine
-##    needs: Terraform_Apply
-##    continue-on-error: true
-##    
-##    steps: 
-##      - name: Checkout
-##        uses: actions/checkout@master
-##
-###      - name: Install xk6
-###        run: go install go.k6.io/xk6/cmd/xk6@latest
-###
-###      - name: Build xk6-counter binary
-###        run: xk6 build --with github.com/grafana/xk6-output-prometheus-remote
-###
-###      - name: Run k6 extension test
-###        run: ./k6 run k6/http_get.js
-##
-#
-#
-#  Terraform_Destroy:
-#    name: 'Terraform Destroy'
-#    runs-on: ubuntu-latest
-#    if: always() 
-#    needs: [Terraform_Apply]
-#
-#    steps: 
-#      - name: Checkout
-#        uses: actions/checkout@master
-#      
-#      - name: Initial AWS Account
-#        uses: aws-actions/configure-aws-credentials@v1
-#        with:
-#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-##          aws-region: ${{ secrets.AWS_REGION }}
-#          aws-region: ap-southeast-1
-#          mask-aws-account-id: false
-#      
-#      - name: Download tfstate
-#        if: always()
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: terraform.tfstate
-#          path: ./
-#
-#      - name: Download kubeconfig
-#        continue-on-error: true
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: config
-#          path: /home/runner/.kube/
-#      
-##      - name: Test kubeconfig
-##        continue-on-error: true
-##        run: |
-##          kubectl cluster-info
-#
-##      - name: Delete all resources in argocd namespace
-##        continue-on-error: true
-##        run: |
-##          kubectl delete all --all -n argocd
-#
-##      - name: Delete manifest
-##        continue-on-error: true
-##        run: |
-##          kubectl delete -f blog-service-deployment.yaml -f blog-service-service.yaml
-#
-#      - name: Setup Terraform
-#        uses: hashicorp/setup-terraform@v2
-#        with:
-##          terraform_version: 1.2.9
-#          terraform_wrapper: false
-#
-#      - name: Terraform Init
-#        id: init
-#        run: terraform init
-#
-#      - name: Terraform Plan Destroy
-#        run: terraform plan -destroy
-#
-#      - name: Terraform Destroy
-#        if: always()
-#        id: destroy       
-#        run: terraform destroy -input=false -auto-approve
+#          kubectl delete -f blog-service-deployment.yaml -f blog-service-service.yaml
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan Destroy
+        run: terraform plan -destroy
+
+      - name: Terraform Destroy
+        if: always()
+        id: destroy       
+        run: terraform destroy -input=false -auto-approve
 
