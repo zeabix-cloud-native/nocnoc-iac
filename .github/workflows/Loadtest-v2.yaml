@@ -123,8 +123,8 @@ jobs:
       # Delete this steps when you want to deployment
       - name: Verify configmaps and secrets
         run: |
-          kubectl get configmap 
-          kubectl get secret
+          kubectl get configmap -A
+          kubectl get secret -A
       
 #      # Delete this steps when you want to deployment
 #      - name: Deploy blog-service applications
@@ -140,8 +140,8 @@ jobs:
       - name: Verify blog-service applications
         continue-on-error: true
         run: |
-          kubectl logs -l app=blog-service
-          kubectl get svc -l app=blog-service 
+          kubectl logs -l app=blog-service -A
+          kubectl get svc -l app=blog-service -A
 
       - name: Upload tfstate
         uses: actions/upload-artifact@v2
@@ -205,7 +205,7 @@ jobs:
           path: ./result.html
       
       # For POC only
-      - name: Sleep for 30 seconds
+      - name: Sleep for 5 minutes
         run: sleep 5m
         shell: bash
 

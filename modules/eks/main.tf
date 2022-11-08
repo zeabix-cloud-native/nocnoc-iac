@@ -107,13 +107,10 @@ module "eks_blueprints_kubernetes_addons" {
 
   argocd_applications     = {
     blog-service = {
-      namespace           = "default"
       path                = "chart"
       repo_url            = "https://github.com/amornc/nocnoc-iac.git"
       values              = {}
       add_on_application  = true # Indicates the root add-on application.
-#      type                = "helm"
     }
   }
-
 }
