@@ -112,7 +112,7 @@ module "eks_blueprints_kubernetes_addons" {
       repo_url            = "https://github.com/amornc/nocnoc-iac.git"
       values              = {}
       add_on_application  = true # Indicates the root add-on application.
-      type                = "helm"
+#      type                = "helm"
     }
   }
 

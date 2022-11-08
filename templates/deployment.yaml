@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Values.blog-service.name }}
-  namespace: {{ .Values.blog-service.config.namespace }}
   labels:
     app: {{ .Values.blog-service.name }}
 spec:

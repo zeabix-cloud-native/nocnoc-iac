@@ -1,7 +1,6 @@
 replicas: 1
 blog-service:
   name: blog-service
-  namespace: default
   image: 802564302645.dkr.ecr.ap-southeast-1.amazonaws.com/blog-service
   version: error
   container:
