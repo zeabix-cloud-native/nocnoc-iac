@@ -114,4 +114,16 @@ module "eks_blueprints_kubernetes_addons" {
       add_on_application  = true # Indicates the root add-on application.
     }
   }
+
+  enable_argo_rollouts    = true
+  argo_rollouts_helm_config = {    # <-- Add this config to expose as LoadBalancer
+    set = [
+      {
+        name  = "dashboard.service.type"
+        value = "LoadBalancer"
+      }
+    ]
+  }
+  
+
 }

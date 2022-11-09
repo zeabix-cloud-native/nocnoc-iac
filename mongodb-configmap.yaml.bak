@@ -1,8 +1,0 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: mongo-config
-data:
-  MONGO_CONNNECTION_URL: "mongodb+srv://adminuser:snODcIVpzX6xPJiX@blogs.nbsxxog.mongodb.net/blogs"
-  MONGO_DATABASE_NAME: "blogs"
-  MONGO_COLLECTION_NAME: "blogs"
