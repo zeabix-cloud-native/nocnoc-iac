@@ -1,0 +1,20 @@
+replicas: 1
+name: blogs-service
+namespace: argocd
+image: 802564302645.dkr.ecr.ap-southeast-1.amazonaws.com/blog-service
+#image: blog-service
+version: error
+#version: m1
+container:
+  port: 8080
+service:
+  type: LoadBalancer
+  port: 8080
+  protocol: TCP
+config:
+  MONGO_CONNNECTION_URL: "mongodb+srv://adminuser:snODcIVpzX6xPJiX@blogs.nbsxxog.mongodb.net/blogs"
+  MONGO_DATABASE_NAME: "blogs"
+  MONGO_COLLECTION_NAME: "blogs"
+
+
+
