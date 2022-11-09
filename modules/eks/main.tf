@@ -68,6 +68,7 @@ module "eks_blueprints_kubernetes_addons" {
   enable_aws_cloudwatch_metrics       = true
   enable_kubecost                     = true
   enable_kube_prometheus_stack        = true
+  enable_argo_rollouts                = true
 
   enable_cluster_autoscaler = true
   cluster_autoscaler_helm_config = {
@@ -115,7 +116,6 @@ module "eks_blueprints_kubernetes_addons" {
     }
   }
 
-  enable_argo_rollouts    = true
   argo_rollouts_helm_config = {    # <-- Add this config to expose as LoadBalancer
     set = [
       {

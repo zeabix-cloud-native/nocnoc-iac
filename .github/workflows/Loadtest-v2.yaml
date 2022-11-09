@@ -231,15 +231,15 @@ jobs:
       - name: Terraform Plan Destroy
         run: terraform plan -destroy
 
-      - name: Terraform Destroy module.eks_blueprints_kubernetes_addons
+      - name: Terraform Destroy module.eks.module.eks_blueprints_kubernetes_addons
         if: always()
         id: destroy1
-        run: terraform destroy -target=module.eks_blueprints_kubernetes_addons -auto-approve
+        run: terraform destroy -target=module.eks.module.eks_blueprints_kubernetes_addons -auto-approve
       
-      - name: Terraform Destroy module.eks_blueprints
+      - name: Terraform Destroy module.eks.module.eks_blueprints
         if: always()
         id: destroy2
-        run: terraform destroy -target=module.eks_blueprints -auto-approve
+        run: terraform destroy -target=module.eks.module.eks_blueprints -auto-approve
 
       - name: Terraform Destroy 
         if: always()
