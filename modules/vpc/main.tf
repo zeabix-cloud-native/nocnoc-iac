@@ -1,12 +1,12 @@
 locals {
-  tags_prefix = "perf"
+  tags_prefix = lower(var.project_name)
   public_subnet_tags = { 
-    "kubernetes.io/cluster/perf-cluster" = "shared"
+    "kubernetes.io/cluster/${lower(var.project_name)}-cluster" = "shared"
     "kubernetes.io/role/elb"                      = 1
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/perf-cluster" = "shared"
+    "kubernetes.io/cluster/${lower(var.project_name)}-cluster" = "shared"
     "kubernetes.io/role/internal-elb"             = 1
   }
 
@@ -185,8 +185,8 @@ resource "aws_security_group" "node_group" {
 ##
 # KMS for encrypt secret
 ##
-resource "aws_kms_key" "eks_secrets" {
-  count = var.enable_kms ? 1 : 0
-  description = "KMS EKS Cluster"
-  tags = merge({ Name = "${local.tags_prefix}-kms-eks-secrets"}, var.tags)
-}
+##resource "aws_kms_key" "eks_secrets" {
+##  count = var.enable_kms ? 1 : 0
+##  description = "KMS EKS Cluster"
+##  tags = merge({ Name = "${local.tags_prefix}-kms-eks-secrets"}, var.tags)
+##}

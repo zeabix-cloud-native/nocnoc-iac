@@ -19,8 +19,9 @@ data "aws_eks_cluster_auth" "this" {
 module "eks_blueprints" {
   source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.14.0"
 
+
   cluster_name    = var.cluster_name
-  cluster_version = "1.23"
+  cluster_version = var.cluster_version
 
   vpc_id             = var.vpc_id
   private_subnet_ids = var.subnet_ids
@@ -28,20 +29,22 @@ module "eks_blueprints" {
   managed_node_groups = {
     mg_ondemand = {
       node_group_name = "managed-spot-ondemand"
-      instance_types  = ["m5.large"]
+#      instance_types  = ["m5.large"]
+      instance_types  = var.instance_types
       min_size        = 3
       max_size        = 9
       desired_size    = 3
       subnet_ids      = var.subnet_ids
     }
-    mg_gpu = {
-      node_group_name = "managed-gpu-ondemand"
-      instance_types  = ["m5.large"]
-      min_size        = 3
-      max_size        = 9
-      desired_size    = 3
-      subnet_ids      = var.subnet_ids
-    }
+##    mg_gpu = {
+##      node_group_name = "managed-gpu-ondemand"
+###      instance_types  = ["m5.large"]
+##      instance_types  = var.instance_types
+##      min_size        = 3
+##      max_size        = 9
+##      desired_size    = 3
+##      subnet_ids      = var.subnet_ids
+##    }
   }
 }
 
@@ -87,9 +90,11 @@ module "eks_blueprints_kubernetes_addons" {
     ]
   }
   enable_cert_manager_csi_driver = true
+
   enable_argocd = true
   # This example shows how to set default ArgoCD Admin Password using SecretsManager with Helm Chart set_sensitive values.
   argocd_helm_config = {
+    timeout          = "1200"
     set_sensitive = [
       {
         name  = "configs.secret.argocdServerAdminPassword"
@@ -100,4 +105,13 @@ module "eks_blueprints_kubernetes_addons" {
 
   argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying add-ons
 
+  argocd_applications     = {
+    blogs-service = {
+      path                = "chart"
+      lint                = true
+      repo_url            = "https://github.com/amornc/nocnoc-iac.git"
+      values              = {}
+      add_on_application  = true # Indicates the root add-on application.
+    }
+  }
 }
