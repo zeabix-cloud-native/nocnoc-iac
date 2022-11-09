@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+env:
+#  https_url: www.zeabix.com
+  https_url: '${{ secrets.URL }}'
+
 jobs:
 
   Terraform_Plan:
@@ -123,8 +127,8 @@ jobs:
       # Delete this steps when you want to deployment
       - name: Verify configmaps and secrets
         run: |
-          kubectl get configmap -A
-          kubectl get secret -A
+          kubectl get configmap -n argocd
+          kubectl get secret -n argocd
       
 #      # Delete this steps when you want to deployment
 #      - name: Deploy blog-service applications
@@ -171,7 +175,7 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          URL=https://${{ secrets.URL }}
+          URL=https://$https_url
           
           for i in {1..10}; do
              sleep 10  
@@ -187,16 +191,16 @@ jobs:
           exit 1
 
       # This jobs uses for POC
-#      - name: Change URL
-#        shell: bash
-#        run: |
-#          sed -i 's/127.0.0.1/'${{ secrets.AWS_ACCESS_KEY_ID }}'/g' ./k6/http_get.js
+      - name: Change URL
+        shell: bash
+        run: |
+          sed -i 's/127.0.0.1/'$https_url'/g' ./k6/http_get.js
 
       - name: Run k6 test
         uses: grafana/k6-action@v0.2.0
         with:
           filename: ./k6/http_get.js
-          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --vus 50 --duration 10s
+          flags: --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99),count" --vus 50 --duration 10s
 
       - name: Upload performance test results
         uses: actions/upload-artifact@v3

@@ -9,7 +9,8 @@ export const options = {
   duration: '10m',
 };
 export default function () {
-  http.get('https://www.gec.co.th');
+//  http.get('https://www.gec.co.th');
+  http.get('https://127.0.0.1');
   sleep(1);
 }
 

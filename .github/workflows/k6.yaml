@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  https_url: '${{ secrets.URL }}'
+
 jobs:
 #
   Terraform_Plan:
@@ -19,9 +22,7 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          export public_ip=www.gec.co.th
-          echo $public_ip
-          URL=https://$public_ip/
+          URL=https://$https_url/
           
           for i in {1..10}; do
              sleep 10  
@@ -42,7 +43,7 @@ jobs:
         run: |
           export public_ip=www.gec.co.th
           echo $public_ip
-          sed -i 's/127.0.0.1/'$public_ip'/g' ./k6/http_get.js
+          sed -i 's/127.0.0.1/'$https_url'/g' ./k6/http_get.js
 
       - name: Run k6 test
         uses: grafana/k6-action@v0.2.0
