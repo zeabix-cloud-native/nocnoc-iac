@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  https_url: '${{ secrets.URL }}'
+  https_url: ${{ secrets.URL }}
 
 jobs:
 #
