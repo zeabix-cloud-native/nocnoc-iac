@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  https_url: ${{ secrets.URL }}
+  https_url: '${{ secrets.URL }}'
 
 jobs:
 #
@@ -41,16 +41,13 @@ jobs:
         continue-on-error: true
         shell: bash
         run: |
-          export public_ip=www.gec.co.th
-          echo $public_ip
           sed -i 's/127.0.0.1/'$https_url'/g' ./k6/http_get.js
 
       - name: Run k6 test
         uses: grafana/k6-action@v0.2.0
         with:
           filename: ./k6/http_get.js
-#          flags: --out json=results.json --address "https://www.google.com" --vus 100 --duration 10s
-          flags: --summary-trend-stats="avg,min,med,max,p(90),p(99.9),p(99.99),count" --vus 50 --duration 10s
+          flags: --summary-trend-stats="avg,min,med,max,p(90),p(95),p(99),count" --vus 50 --duration 10s
 
       - name: Check file before upload
         run: |

@@ -6,7 +6,6 @@ on:
       - main
 
 env:
-#  https_url: www.zeabix.com
   https_url: '${{ secrets.URL }}'
 
 jobs:
@@ -75,7 +74,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}  # Uncomment when finished POC
-#          aws-region: ap-southeast-1              # Comment when finished POC
           mask-aws-account-id: false 
       
       - name: Download TF Plan
@@ -117,12 +115,6 @@ jobs:
         continue-on-error: true
         run: |
           kubectl cluster-info
-
-#      # Change this steps when you want to deployment
-#      - name: Deploy configmaps and secrets
-#        continue-on-error: true
-#        run: |
-#          kubectl apply -f mongodb-configmap.yaml -f mongodb-secrets.yaml
       
       # Delete this steps when you want to deployment
       - name: Verify configmaps and secrets
@@ -130,21 +122,12 @@ jobs:
           kubectl get configmap -n argocd
           kubectl get secret -n argocd
       
-#      # Delete this steps when you want to deployment
-#      - name: Deploy blog-service applications
-#        continue-on-error: true
-#        run: |
-#          # Apply the manifest
-#          kubectl apply -f blog-service-deployment.yaml -f blog-service-service.yaml
-#
-#          # Check service
-#          kubectl logs -l app=blog-service
-      
       # Delete this steps when you want to deployment
       - name: Verify blog-service applications
         continue-on-error: true
         run: |
           kubectl logs -l app=blogs-service -n argocd
+          
           kubectl get svc -l app=blogs-service -n argocd
 
       - name: Upload tfstate
@@ -267,21 +250,6 @@ jobs:
         with:
           name: config
           path: /home/runner/.kube/
-      
-#      - name: Test kubeconfig
-#        continue-on-error: true
-#        run: |
-#          kubectl cluster-info
-
-#      - name: Delete all resources in argocd namespace
-#        continue-on-error: true
-#        run: |
-#          kubectl delete all --all -n argocd
-
-#      - name: Delete manifest
-#        continue-on-error: true
-#        run: |
-#          kubectl delete -f blog-service-deployment.yaml -f blog-service-service.yaml
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
