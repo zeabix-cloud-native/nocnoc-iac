@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: blogs-service
+  name: blogs-service-rollout
   namespace: argocd
   labels:
     app: blogs-service
@@ -21,9 +21,11 @@ spec:
         image: 802564302645.dkr.ecr.ap-southeast-1.amazonaws.com/blog-service:error
         imagePullPolicy: Always
         ports:
-        - name: http
-          containerPort: 8080
+        - containerPort: {{ .Values.container.port }}
           protocol: TCP
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-blogs-env
         resources:
             requests:
                 memory: "64Mi"
@@ -34,14 +36,14 @@ spec:
   strategy:
     blueGreen:
       autoPromotionEnabled: false
-      activeService: blogs-service
-      previewService: blogs-service-preview
+      activeService: blogs-service-service
+      previewService: blogs-service-service-preview
 ---
 
 apiVersion: v1
 kind: Service
 metadata:
-  name: blogs-service-preview
+  name: blogs-service-service-preview
   namespace: argocd
 spec:
   ports:
@@ -56,7 +58,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: blogs-service-preview
+  name: blogs-service-ingress-preview
   namespace: argocd
   annotations:
 #    alb.ingress.kubernetes.io/group.name: riker-preview
@@ -75,6 +77,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: blogs-service-preview
+            name: blogs-service-service-preview
             port: 
               number: 80
