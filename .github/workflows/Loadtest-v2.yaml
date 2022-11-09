@@ -237,7 +237,7 @@ jobs:
         run: terraform destroy -target=module.eks.module.eks_blueprints_kubernetes_addons -auto-approve
 
       - name: Terraform Init
-        id: init
+        id: init2
         continue-on-error: true
         run: terraform init
 
@@ -250,7 +250,7 @@ jobs:
         run: terraform destroy -target=module.eks.module.eks_blueprints -auto-approve
 
       - name: Terraform Init
-        id: init
+        id: init3
         continue-on-error: true
         run: terraform init
 
