@@ -36,15 +36,15 @@ module "eks_blueprints" {
       desired_size    = 3
       subnet_ids      = var.subnet_ids
     }
-##    mg_gpu = {
-##      node_group_name = "managed-gpu-ondemand"
-###      instance_types  = ["m5.large"]
-##      instance_types  = var.instance_types
-##      min_size        = 3
-##      max_size        = 9
-##      desired_size    = 3
-##      subnet_ids      = var.subnet_ids
-##    }
+    mg_gpu = {
+      node_group_name = "managed-gpu-ondemand"
+#      instance_types  = ["m5.large"]
+      instance_types  = var.instance_types
+      min_size        = 3
+      max_size        = 9
+      desired_size    = 3
+      subnet_ids      = var.subnet_ids
+    }
   }
 }
 
