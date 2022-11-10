@@ -234,6 +234,7 @@ jobs:
       - name: Terraform Destroy module.eks.module.eks_blueprints_kubernetes_addons
         if: always()
         id: destroy1
+        continue-on-error: true
         run: terraform destroy -target=module.eks.module.eks_blueprints_kubernetes_addons -auto-approve
 
       - name: Terraform Init
@@ -242,11 +243,13 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan Destroy
+        continue-on-error: true
         run: terraform plan -destroy
       
       - name: Terraform Destroy module.eks.module.eks_blueprints
         if: always()
         id: destroy2
+        continue-on-error: true
         run: terraform destroy -target=module.eks.module.eks_blueprints -auto-approve
 
       - name: Terraform Init
@@ -255,6 +258,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan Destroy
+        continue-on-error: true
         run: terraform plan -destroy
 
       - name: Terraform Destroy 
