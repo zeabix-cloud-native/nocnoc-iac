@@ -1,4 +1,4 @@
-name: "performance_cluster"
+name: "Production deployment"
 
 on:
   push:
