@@ -15,9 +15,12 @@ provider "helm" {
 data "aws_eks_cluster_auth" "this" {
   name = module.eks_blueprints.eks_cluster_id
 }
+locals {
+  istio_charts_url = "https://istio-release.storage.googleapis.com/charts"
+}
 
 module "eks_blueprints" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.14.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints?ref=v4.15.0"
 
 
   cluster_name    = var.cluster_name
@@ -49,7 +52,7 @@ module "eks_blueprints" {
 }
 
 module "eks_blueprints_kubernetes_addons" {
-  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.14.0"
+  source = "github.com/aws-ia/terraform-aws-eks-blueprints//modules/kubernetes-addons?ref=v4.15.0"
 
   eks_cluster_id       = module.eks_blueprints.eks_cluster_id
   eks_cluster_endpoint = module.eks_blueprints.eks_cluster_endpoint
@@ -68,7 +71,6 @@ module "eks_blueprints_kubernetes_addons" {
   enable_aws_cloudwatch_metrics       = true
   enable_kubecost                     = true
   enable_kube_prometheus_stack        = true
-
   enable_cluster_autoscaler = true
   cluster_autoscaler_helm_config = {
     set = [
@@ -114,4 +116,106 @@ module "eks_blueprints_kubernetes_addons" {
       add_on_application  = true # Indicates the root add-on application.
     }
   }
+}
+resource "helm_release" "opensearch" {
+  depends_on = [
+    module.eks_blueprints
+  ]
+  name  = "opensearch"
+
+  repository = "https://opensearch-project.github.io/helm-charts"
+  chart      = "opensearch"
+  namespace  = "opensearch"
+  create_namespace = true
+
+}
+
+resource "helm_release" "fluentbit" {
+  depends_on = [
+    module.eks_blueprints
+  ]
+  name = "fluentbit"
+  repository = "https://fluent.github.io/helm-charts"
+  chart = "fluent-bit"
+  namespace = "fluent"
+  create_namespace = "true"
+}
+
+resource "helm_release" "istio-base" {
+  repository       = local.istio_charts_url
+  chart            = "base"
+  name             = "istio-base"
+  namespace        = "istio-system"
+  version          = "1.12.1"
+  create_namespace = true
+}
+resource "helm_release" "istiod" {
+  repository       = local.istio_charts_url
+  chart            = "istiod"
+  name             = "istiod"
+  version          = "1.12.1"
+  namespace        = "istio-system"
+  depends_on       = [helm_release.istio-base]
+}
+resource "kubernetes_namespace" "istio-ingress" {
+  metadata {
+    labels = {
+      istio-injection = "enabled"
+    }
+
+    name = "istio-ingress"
+  }
+}
+resource "helm_release" "istio-ingress" {
+  repository = local.istio_charts_url
+  chart      = "gateway"
+  name       = "istio-ingress"
+  version    = "1.12.1"
+  depends_on = [helm_release.istiod]
+}
+
+resource "kubernetes_namespace" "tracing" {
+  metadata {
+    name = "tracing"
+  }
+}
+resource "kubernetes_namespace" "monitoring" {
+  metadata {
+    name = "monitoring"
+  }
+}
+resource "helm_release" "elastic" {
+  repository = "https://helm.elastic.co"
+  chart = "elasticsearch"
+  name = "elasticsearch"
+  namespace = "tracing"
+  values = [
+    "${file("helm/elasticsearch/values.yaml")}"
+  ]
+  depends_on = [
+    kubernetes_namespace.tracing
+  ]
+}
+
+resource "helm_release" "zipkin" {
+  chart = "helm/zipkins"
+  name = "zipkin"
+  namespace = "tracing"
+  values = [
+    "${file("helm/zipkins/values.yaml")}"
+  ]
+   depends_on = [
+    helm_release.elastic
+  ]
+}
+
+resource "helm_release" "prometheus-pushgateway" {
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart = "prometheus-pushgateway"
+  name = "prometheus-pushgateway"
+  namespace = "monitoring"
+  depends_on = [
+    kubernetes_namespace.monitoring
+  ]
+  
 }
