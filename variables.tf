@@ -8,6 +8,12 @@ variable "project_name" {
   default = "production"
 }
 
+variable "eks_version" {
+  description = "Version of EKS"
+  type = string
+  default = "1.23"
+}
+
 variable "vpc_cidr_blocks" {
   description = "CIDR blocks for VPC"
   type = map(string) 
@@ -35,6 +41,7 @@ variable "argocd_password" {
 variable "cluster_version" {
   description = "Kubernetes cluster version"
   type        = string
+  default     = "1.23"
 }
 
 variable "cluster_name" {

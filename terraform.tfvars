@@ -2,7 +2,7 @@ region                   = "ap-southeast-1"
 
 #availability_zones_count = 2
 
-project_name             = "nocnoc-performance"
+project_name             = "nocnoc-production"
 
 vpc_cidr_blocks          = {
     "public_cidr_block" = "150.100.0.0/16"
@@ -22,8 +22,6 @@ availability_zones       = {
     "az2" = "ap-southeast-1b"
     "az3" = "ap-southeast-1c"
   }
-
-argocd_password          = "asdfqwer"
 
 cluster_version          = "1.23"
 

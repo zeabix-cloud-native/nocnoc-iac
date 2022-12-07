@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket         = "nocnoc-devops"
+    key            = "terraform.tfstate"
+    region         = "ap-southeast-1"
+    dynamodb_table = "nocnoc-tf-state"
+  }
+}
 provider "aws" {
   region = var.region
 }

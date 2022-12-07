@@ -100,7 +100,7 @@ module "eks_blueprints_kubernetes_addons" {
     set_sensitive = [
       {
         name  = "configs.secret.argocdServerAdminPassword"
-        value = bcrypt(var.argocd_password)
+        value = bcrypt(data.aws_secretsmanager_secret_version.admin_password_version.secret_string)
       }
     ]
   }
@@ -116,6 +116,29 @@ module "eks_blueprints_kubernetes_addons" {
       add_on_application  = true # Indicates the root add-on application.
     }
   }
+}
+
+
+resource "random_password" "argocd" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "aws_secretsmanager_secret" "arogcd" {
+  name                    = "argocd"
+  recovery_window_in_days = 0 # Set to zero for this example to force delete during Terraform destroy
+}
+
+resource "aws_secretsmanager_secret_version" "arogcd" {
+  secret_id     = aws_secretsmanager_secret.arogcd.id
+  secret_string = random_password.argocd.result
+}
+
+data "aws_secretsmanager_secret_version" "admin_password_version" {
+  secret_id = aws_secretsmanager_secret.arogcd.id
+
+  depends_on = [aws_secretsmanager_secret_version.arogcd]
 }
 resource "helm_release" "opensearch" {
   depends_on = [

@@ -66,29 +66,27 @@ resource "aws_subnet" "subnets_private" {
 }
 
 # Internet Gateway
-resource "aws_internet_gateway" "cluster-ig" {
-  depends_on = [
-    aws_vpc.network,
-    aws_subnet.subnets_public
-  ]
+# resource "aws_internet_gateway" "cluster-ig" {
+#   depends_on = [
+#     aws_vpc.network,
+#     aws_subnet.subnets_public
+#   ]
 
-  vpc_id = aws_vpc.network.id
+#   vpc_id = aws_vpc.network.id
 
-  tags = merge({ Name = "${local.tags_prefix}-ig-cluster"}, var.tags)
-}
+#   tags = merge({ Name = "${local.tags_prefix}-ig-cluster"}, var.tags)
+# }
 
 
 resource "aws_route_table" "rt-pub" {
   depends_on = [
     aws_vpc.network,
-    aws_internet_gateway.cluster-ig
   ]
 
   vpc_id = aws_vpc.network.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.cluster-ig.id
   }
 
   tags = merge({ Name = "${local.tags_prefix}-rt-public-zone"}, var.tags)
@@ -116,7 +114,7 @@ resource "aws_eip" "nat-gateway-eips" {
     aws_route_table_association.ig_pub_subnets
   ]
 
-  for_each = {for k, v in var.availability_zones: k => v if contains(["az1", "az2"], k)}
+  for_each = {for k, v in var.availability_zones: k => v if contains(["az1", "az2","az3"], k)}
   vpc = true
   tags = merge({ Name = "${local.tags_prefix}-eip-nat-${each.key}"}, var.tags)
 }
@@ -129,7 +127,7 @@ resource "aws_nat_gateway" "nat_gateways" {
     aws_subnet.subnets_public
   ]
 
-  for_each = {for k, v in var.availability_zones: k => v if contains(["az1", "az2"], k)}
+  for_each = {for k, v in var.availability_zones: k => v if contains(["az1", "az2","az3"], k)}
   subnet_id = aws_subnet.subnets_public[each.key].id
   allocation_id = aws_eip.nat-gateway-eips[each.key].id
   tags = merge({ Name = "${local.tags_prefix}-nat-${each.key}"}, var.tags)
@@ -147,7 +145,7 @@ resource "aws_route_table" "rt-nat-gateways" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_gateways[contains(["az1", "az2"], each.key) ? each.key : "az2"].id
+    nat_gateway_id = aws_nat_gateway.nat_gateways[contains(["az1", "az2","az3"], each.key) ? each.key : "az2"].id
   }
 
   tags = merge({ Name = "${local.tags_prefix}-rt-nat-gw-${each.key}"}, var.tags)
@@ -163,7 +161,7 @@ resource "aws_route_table_association" "nat-rt-association" {
 
   for_each = var.availability_zones
   subnet_id = aws_subnet.subnets_private[each.key].id 
-  route_table_id = aws_route_table.rt-nat-gateways[contains(["az1", "az2"], each.key) ? each.key : "az2"].id
+  route_table_id = aws_route_table.rt-nat-gateways[contains(["az1", "az2","az3"], each.key) ? each.key : "az2"].id
 }
 
 #
