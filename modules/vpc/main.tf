@@ -145,7 +145,7 @@ resource "aws_route_table" "rt-nat-gateways" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_gateways[contains(["az1", "az2","az3"], each.key) ? each.key : "az2"].id
+    nat_gateway_id = aws_nat_gateway.nat_gateways[each.key].id
   }
 
   tags = merge({ Name = "${local.tags_prefix}-rt-nat-gw-${each.key}"}, var.tags)
@@ -161,7 +161,7 @@ resource "aws_route_table_association" "nat-rt-association" {
 
   for_each = var.availability_zones
   subnet_id = aws_subnet.subnets_private[each.key].id 
-  route_table_id = aws_route_table.rt-nat-gateways[contains(["az1", "az2","az3"], each.key) ? each.key : "az2"].id
+  route_table_id = aws_route_table.rt-nat-gateways[each.key].id
 }
 
 #

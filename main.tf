@@ -1,10 +1,13 @@
 terraform {
   backend "s3" {
-    bucket         = "nocnoc-devops"
-    key            = "terraform.tfstate"
-    region         = "ap-southeast-1"
-    dynamodb_table = "nocnoc-tf-state"
+    bucket         = var.bucket
+    key            = var.key_state
+    region         = var.region
+    dynamodb_table = var.dynamodb_table
   }
+}
+locals {
+  subnetID = concat(module.network.private_subnet_ids,module.network.public_subnet_ids)
 }
 provider "aws" {
   region = var.region
@@ -20,10 +23,27 @@ module "network" {
 }
 module "eks" {
   source = "./modules/eks"
-  cluster_name = "${var.project_name}-cluster"
-  instance_types  = var.instance_types
+  cluster_name    = "${var.project_name}"
   cluster_version = var.cluster_version
-  argocd_password = var.argocd_password
-  vpc_id =  module.network.vpc_id
-  subnet_ids = concat(module.network.private_subnet_ids,module.network.public_subnet_ids)
+  vpc_id          = module.network.vpc_id
+  subnet_ids      = local.subnetID
+  managed_node_groups = {
+    mg_ondemand = {
+      node_group_name = "managed-spot-ondemand"
+      instance_types  = var.instance_types
+      min_size        = 3
+      max_size        = 9
+      desired_size    = 3
+      subnet_ids      = local.subnetID
+    }
+    mg_gpu = {
+      node_group_name = "managed-gpu-ondemand"
+      instance_types  = var.instance_types
+      min_size        = 3
+      max_size        = 9
+      desired_size    = 3
+      subnet_ids      = local.subnetID
+    }
+  }
+  
 }

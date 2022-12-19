@@ -3,10 +3,6 @@ variable "cluster_name" {
   type        = string
   default     = ""
 }
-variable "argocd_password" {
-  description = "Argocd Admin password"
-  type = string
-}
 variable "vpc_id" {
   description = "VPC ID for EKS"
   type = string
@@ -20,7 +16,8 @@ variable "cluster_version" {
   type        = string
 }
 
-variable "instance_types" {
-  description = "Type of instance"
-  type        = list(string)
+variable "managed_node_groups" {
+  description = "Spec of manage node group"
+  type = any
+  
 }

@@ -5,13 +5,11 @@ variable "region" {
 variable "project_name" {
   description = "Name of Project"
   type = string
-  default = "production"
 }
 
 variable "eks_version" {
   description = "Version of EKS"
   type = string
-  default = "1.23"
 }
 
 variable "vpc_cidr_blocks" {
@@ -33,15 +31,9 @@ variable "availability_zones" {
   type = map(string)
 }
 
-variable "argocd_password" {
-  description = "ArgoCd Password"
-  type = string
-}
-
 variable "cluster_version" {
   description = "Kubernetes cluster version"
   type        = string
-  default     = "1.23"
 }
 
 variable "cluster_name" {
@@ -52,4 +44,19 @@ variable "cluster_name" {
 variable "instance_types" {
   description = "Type of instance"
   type        = list(string)
+}
+
+### Backend ####
+variable "bucket" {
+  description = "S3 Bucket for keep backend state"
+  type = string
+}
+
+variable "key_state" {
+  description = "Key use for state file store"
+  type = string
+}
+variable "dynamodb_table" {
+  description = "Dynamo table for store state"
+  type = string
 }
