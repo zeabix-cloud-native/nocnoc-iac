@@ -27,6 +27,10 @@ module "eks" {
   cluster_version = var.cluster_version
   vpc_id          = module.network.vpc_id
   subnet_ids      = local.subnetID
+
+  managed_node_groups = local.managed_node_groups
+
+  /*
   managed_node_groups = {
     mg_ondemand = {
       node_group_name = "managed-spot-ondemand"
@@ -45,5 +49,6 @@ module "eks" {
       subnet_ids      = local.subnetID
     }
   }
+  */
   
 }

@@ -46,6 +46,49 @@ variable "instance_types" {
   type        = list(string)
 }
 
+### Node Group ###
+variable "managed_node_groups" {
+  description = "Managed node group specification"
+  type = any 
+  
+
+  default = {
+    mg_ondemand = {
+      node_group_name = "managed-spot-ondemand"
+      instance_types  = var.instance_types #user input ["t3.small", "c5.xlarge"]
+      min_size        = 3
+      max_size        = 9
+      desired_size    = 3
+
+      ami_type = "AL2_x86_64"
+
+      capacity_type  = "ON_DEMAND"  # ON_DEMAND or SPOT
+      labels = {}
+      taints = []
+      tags = {}
+
+
+      #subnet_ids      = local.subnetID
+    }
+    mg_gpu = {
+      node_group_name = "managed-gpu-ondemand"
+      instance_types  = var.instance_types
+      min_size        = 3
+      max_size        = 9
+      desired_size    = 3
+
+      ami_type = "AL2_x86_64"
+
+      capacity_type  = "ON_DEMAND"  # ON_DEMAND or SPOT
+      labels = {}
+      taints = []
+      tags = {}
+      #subnet_ids      = local.subnetID
+    }
+  }
+  
+}
+
 ### Backend ####
 variable "bucket" {
   description = "S3 Bucket for keep backend state"
