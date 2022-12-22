@@ -19,6 +19,7 @@ tags                     = {
     Env = "nonproduction"
 }
 enable_kms               = false
+vpc_name = "vpc-nocnoc-nonprd"
 availability_zones       = {
     "az1" = "ap-southeast-1a"
     "az2" = "ap-southeast-1b"
