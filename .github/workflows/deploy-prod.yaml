@@ -1,0 +1,145 @@
+name: "Production deployment"
+
+on:
+  workflow_dispatch:
+    
+
+jobs:
+
+  Terraform_Plan:
+    name: "Terraform Plan"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Initial AWS Account
+        uses: aws-actions/configure-aws-credentials@master
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          mask-aws-account-id: false
+  
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check -diff -recursive
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+      
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false -out "tf_plan"
+            
+      - name: Upload TF Plan
+        uses: actions/upload-artifact@v2
+        with:
+          name: tf_plan
+          path: ./tf_plan/
+          if-no-files-found: error
+          retention-days: 1
+  
+  Terraform_Apply:
+    name: 'Terraform Apply'
+    runs-on: ubuntu-latest
+    needs: Terraform_Plan
+    
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@master
+      
+      - name: Initial AWS Account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }} 
+          mask-aws-account-id: false 
+      
+      - name: Download TF Plan
+        uses: actions/download-artifact@v3
+        with:
+          name: tf_plan
+          path: ./
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Apply
+        id: apply
+        continue-on-error: true
+        run: terraform apply "tf_plan"
+
+      - name: Upload tfstate
+        uses: actions/upload-artifact@v2
+        continue-on-error: true
+        with:
+          name: terraform.tfstate
+          path: ./terraform.tfstate
+          if-no-files-found: error
+          retention-days: 1
+           
+  Terraform_Destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    if: always() 
+    needs: [Terraform_Apply]
+
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@master
+      
+      - name: Initial AWS Account
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          mask-aws-account-id: false
+      
+      - name: Download tfstate
+        if: always()
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform.tfstate
+          path: ./
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan Destroy
+        run: terraform plan -destroy
+
+      - name: Terraform Destroy
+        if: always()
+        id: destroy       
+        run: terraform destroy -input=false -auto-approve
