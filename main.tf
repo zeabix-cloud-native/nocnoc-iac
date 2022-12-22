@@ -1,3 +1,15 @@
+terraform {
+
+  /*
+  backend "s3" {
+    bucket         = var.bucket
+    key            = var.key_state
+    region         = var.region
+    dynamodb_table = var.dynamodb_table
+  }
+  */
+}
+
 provider "aws" {
   region = var.region
 }
@@ -10,10 +22,14 @@ module "network" {
   availability_zones = var.availability_zones
   enable_kms = var.enable_kms
 }
+
 module "eks" {
   source = "./modules/eks"
-  cluster_name = "${var.project_name}-cluster"
-  argocd_password = var.argocd_password
-  vpc_id =  module.network.vpc_id
-  subnet_ids = concat(module.network.private_subnet_ids,module.network.public_subnet_ids)
+  cluster_name    = "${var.project_name}"
+  cluster_version = var.cluster_version
+  vpc_id          = module.network.vpc_id
+  subnet_ids      = local.subnetID
+
+  managed_node_groups = local.managed_node_groups
+  
 }

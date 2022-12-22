@@ -25,7 +25,7 @@ output "nodegroup_sg_ids" {
   
 }
 
-output "provider_key_arn" {
-  value = var.enable_kms ? aws_kms_key.eks_secrets[0].arn : ""
-  description = "ARN for KMS Key used for encrypt EKS secrets"
-}
+#output "provider_key_arn" {
+#  value = var.enable_kms ? aws_kms_key.eks_secrets[0].arn : ""
+#  description = "ARN for KMS Key used for encrypt EKS secrets"
+#}

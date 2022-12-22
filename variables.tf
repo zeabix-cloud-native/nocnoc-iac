@@ -1,49 +1,105 @@
 variable "region" {
   description = "Region of AWS provider"
   type = string
-  default = "ap-southeast-1"
 }
 variable "project_name" {
   description = "Name of Project"
   type = string
-  default = "prod"
+}
+
+variable "eks_version" {
+  description = "Version of EKS"
+  type = string
 }
 
 variable "vpc_cidr_blocks" {
   description = "CIDR blocks for VPC"
-  type = map(string)
-  default = {
-    "public_cidr_block" = "150.100.0.0/16"
-    "database_cidr_block" = "150.101.0.0/16"
-  }  
+  type = map(string) 
 }
 
 variable "tags" {
     description = "Array of the tags for all AWS resources created"
-    default = {
-        Platform = "eks"
-        Owner= ""
-        Env = "production"
-    }
 }
+
 variable "enable_kms" {
   description = "Enable KMS for EKS encryption"
   type = bool
-  default = false
 }
 
 variable "availability_zones" {
   description = "List of availability zone which want to setup EKS cluster"
   type = map(string)
-  default = {
-    "az1" = "ap-southeast-1a"
-    "az2" = "ap-southeast-1b"
-    "az3" = "ap-southeast-1c"
-  }
 }
 
-variable "argocd_password" {
-  description = "ArgoCd Password"
+variable "cluster_version" {
+  description = "Kubernetes cluster version"
+  type        = string
+}
+
+variable "cluster_name" {
+  description = "Name of cluster - used by Terratest for e2e test automation"
+  type        = string
+}
+
+variable "instance_types" {
+  description = "Type of instance"
+  type        = list(string)
+}
+
+### Node Group ###
+variable "managed_node_groups" {
+  description = "Managed node group specification"
+  type = any 
+  
+
+  default = {
+    mg_ondemand = {
+      node_group_name = "managed-spot-ondemand"
+      instance_types  = ["t3.medium"]
+      min_size        = 3
+      max_size        = 9
+      desired_size    = 3
+
+      ami_type = "AL2_x86_64"
+
+      capacity_type  = "ON_DEMAND"  # ON_DEMAND or SPOT
+      labels = {}
+      taints = []
+      tags = {}
+
+
+      #subnet_ids      = local.subnetID
+    }
+    mg_gpu = {
+      node_group_name = "managed-gpu-ondemand"
+      instance_types  = ["t3.medium"]
+      min_size        = 3
+      max_size        = 9
+      desired_size    = 3
+
+      ami_type = "AL2_x86_64"
+
+      capacity_type  = "ON_DEMAND"  # ON_DEMAND or SPOT
+      labels = {}
+      taints = []
+      tags = {}
+      #subnet_ids      = local.subnetID
+    }
+  }
+  
+}
+
+### Backend ####
+variable "bucket" {
+  description = "S3 Bucket for keep backend state"
   type = string
-  default = "asdfqwer"
+}
+
+variable "key_state" {
+  description = "Key use for state file store"
+  type = string
+}
+variable "dynamodb_table" {
+  description = "Dynamo table for store state"
+  type = string
 }
