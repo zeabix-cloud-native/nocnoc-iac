@@ -23,7 +23,7 @@ output "cluster_name" {
   value       = "${var.project_name}-cluster"
 }
 
-output "vpc_id" {
-  description = "Kubernetes VPC ID"
-  value       = module.network.vpc_id
-}
+# output "vpc_id" {
+#   description = "Kubernetes VPC ID"
+#   value       = module.network.vpc_id
+# }
