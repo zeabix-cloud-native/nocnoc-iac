@@ -34,21 +34,4 @@ variable "availability_zones" {
 variable "primary_subnet_prefix" {
     description = "Subnet prefix for primary cidr block"
     type = string
-    default = "net-prd"  
-}
-
-
-### Backend ####
-variable "bucket" {
-  description = "S3 Bucket for keep backend state"
-  type = string
-}
-
-variable "key_state" {
-  description = "Key use for state file store"
-  type = string
-}
-variable "dynamodb_table" {
-  description = "Dynamo table for store state"
-  type = string
 }

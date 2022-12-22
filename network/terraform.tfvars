@@ -1,8 +1,4 @@
 region         = "ap-southeast-1"
-### Backend ZONE
-bucket         = "nocnoc-devops"
-key_state            = "terraform-prod/network/terraform.tfstate"
-dynamodb_table = "prod-network-tf-state"
 
 
 project_name             = "nocnoc-production"
@@ -19,6 +15,8 @@ tags                     = {
 }
 enable_kms               = false
 vpc_name = "vpc-nocnoc-prd"
+primary_subnet_prefix = "net-prd"
+
 availability_zones       = {
     "az1" = "ap-southeast-1a"
     "az2" = "ap-southeast-1b"
