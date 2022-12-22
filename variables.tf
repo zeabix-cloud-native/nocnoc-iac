@@ -55,7 +55,7 @@ variable "managed_node_groups" {
   default = {
     mg_ondemand = {
       node_group_name = "managed-spot-ondemand"
-      instance_types  = var.instance_types #user input ["t3.small", "c5.xlarge"]
+      instance_types  = ["t3.medium"]
       min_size        = 3
       max_size        = 9
       desired_size    = 3
@@ -72,7 +72,7 @@ variable "managed_node_groups" {
     }
     mg_gpu = {
       node_group_name = "managed-gpu-ondemand"
-      instance_types  = var.instance_types
+      instance_types  = ["t3.medium"]
       min_size        = 3
       max_size        = 9
       desired_size    = 3
