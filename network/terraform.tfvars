@@ -1,21 +1,22 @@
 region         = "ap-southeast-1"
+
 ### Backend ZONE
 bucket         = "nocnoc-devops"
-key_state            = "terraform-prod/network/terraform.tfstate"
+key_state      = "terraform-prod/network/terraform.tfstate"
 dynamodb_table = "prod-network-tf-state"
 
 
-project_name             = "nocnoc-production"
+project_name             = "nocnoc-nonproduction"
 ### VPC ZONE
 vpc_cidr_blocks          = {
-    "primary_cidr_block" = "172.16.0.0/16"
-    "secondary_cidr_block" = "172.36.0.0/16"
+    "primary_cidr_block" = "172.17.0.0/16"
+    "secondary_cidr_block" = "172.37.0.0/16"
 } 
 
 tags                     = {
     Platform = "eks"
     Owner= ""
-    Env = "production"
+    Env = "nonproduction"
 }
 enable_kms               = false
 availability_zones       = {
