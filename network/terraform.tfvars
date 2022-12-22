@@ -18,6 +18,7 @@ tags                     = {
     Env = "production"
 }
 enable_kms               = false
+vpc_name = "vpc-nocnoc-prd"
 availability_zones       = {
     "az1" = "ap-southeast-1a"
     "az2" = "ap-southeast-1b"

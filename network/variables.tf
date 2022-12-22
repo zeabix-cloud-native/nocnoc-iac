@@ -21,6 +21,11 @@ variable "enable_kms" {
   type = bool
 }
 
+variable "vpc_name" {
+  description = "Name of VPC"
+  type = string  
+}
+
 variable "availability_zones" {
   description = "List of availability zone which want to setup EKS cluster"
   type = map(string)
