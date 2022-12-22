@@ -1,10 +1,10 @@
 terraform {
 
 backend "s3" {
-    bucket         = "nocnoc-devops-prod"
-    key            = "terraform-prod/network/terraform.tfstate"
+    bucket         = "nocnoc-devops-nonprod"
+    key            = "terraform-performance/network/terraform.tfstate"
     region         = "ap-southeast-1"
-    dynamodb_table = "nocnoc-prod-network-tf-state"
+    dynamodb_table = "nocnoc-performance-network-tf-state"
   }
   
 }
