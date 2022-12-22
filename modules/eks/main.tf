@@ -191,7 +191,7 @@ resource "helm_release" "elastic" {
   name = "elasticsearch"
   namespace = "tracing"
   values = [
-    "${file("helm/elasticsearch/values.yaml")}"
+    "${file("../helm/elasticsearch/values.yaml")}"
   ]
   depends_on = [
     kubernetes_namespace.tracing
@@ -203,7 +203,7 @@ resource "helm_release" "zipkin" {
   name = "zipkin"
   namespace = "tracing"
   values = [
-    "${file("helm/zipkins/values.yaml")}"
+    "${file("../helm/zipkins/values.yaml")}"
   ]
    depends_on = [
     helm_release.elastic
