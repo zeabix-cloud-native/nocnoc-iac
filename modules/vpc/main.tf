@@ -15,7 +15,7 @@ locals {
 resource "aws_vpc" "network" {
   cidr_block = var.vpc_cidr_blocks["primary_cidr_block"]
   enable_dns_hostnames = true
-  tags = merge({ Name = "${local.tags_prefix}-eks-vpc"}, var.tags)
+  tags = merge({ Name = var.vpc_name } , var.tags)
 }
 
 /*

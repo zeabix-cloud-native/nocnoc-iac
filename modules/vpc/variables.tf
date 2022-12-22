@@ -33,6 +33,11 @@ variable "primary_subnet_prefix" {
   
 }
 
+variable "vpc_name" {
+  description = "Name of VPC"
+  type = string
+}
+
 variable "primary_subnet_config" {
   description = "Primary subnet configuration"
   type = list(object({
