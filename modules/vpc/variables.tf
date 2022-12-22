@@ -26,3 +26,80 @@ variable "enable_kms" {
   description = "Enable KMS for EKS encryption"
   type = bool
 }
+
+variable "primary_subnet_prefix" {
+  description = "Subnet prifix for primary cidr block"
+  type = string
+  
+}
+
+variable "primary_subnet_config" {
+  description = "Primary subnet configuration"
+  type = list(object({
+    name = string
+    idx = number
+    availability_zone = string
+  })) 
+
+  default = [
+    {
+      name = "private-Infra-1a"
+      idx = 1
+      availability_zone = "ap-southeast-1a"
+    },
+    {
+      name = "net-prd-private-DB-1a"
+      idx = 4
+      availability_zone = "ap-southeast-1a"
+    },
+    {
+      name = "private-Infra-1b"
+      idx = 11
+      availability_zone = "ap-southeast-1b"
+    },
+    {
+      name = "net-prd-private-DB-1b"
+      idx = 14
+      availability_zone = "ap-southeast-1b"
+    },
+    {
+      name = "private-Infra-1c"
+      idx = 21
+      availability_zone = "ap-southeast-1c"
+    },
+    {
+      name = "net-prd-private-DB-1c"
+      idx = 24
+      availability_zone = "ap-southeast-1c"
+    }
+
+  ] 
+}
+
+
+variable "cluster_subnet_config" {
+  description = "Cluster subnet configuration"
+  type = list(object({
+    name = string
+    idx = number
+    availability_zone = string
+  })) 
+
+  default = [
+    {
+      name = "private-App-1a"
+      idx = 0
+      availability_zone = "ap-southeast-1a"
+    },
+    {
+      name = "private-App-1b"
+      idx = 1
+      availability_zone = "ap-southeast-1b"
+    },
+    {
+      name = "private-App-1c"
+      idx = 3
+      availability_zone = "ap-southeast-1c"
+    }
+  ] 
+}

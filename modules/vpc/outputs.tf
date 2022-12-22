@@ -3,20 +3,20 @@ output "vpc_id" {
   description = "VPC ID"
 }
 
+output "cluster_subnet_ids" {
+
+  value = [
+    for s in aws_subnet.subnets_cluster : s.id
+  ]
+  description = "EKS Cluster Subnet IDs"
+}
+
 output "private_subnet_ids" {
 
   value = [
     for s in aws_subnet.subnets_private : s.id
   ]
   description = "Private Subnet IDs"
-}
-
-output "public_subnet_ids" {
-
-  value = [
-    for s in aws_subnet.subnets_public : s.id
-  ]
-  description = "Public Subnet IDs"
 }
 
 output "nodegroup_sg_ids" {
