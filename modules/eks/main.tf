@@ -182,6 +182,11 @@ resource "kubernetes_namespace" "tracing" {
     name = "tracing"
   }
 }
+resource "kubernetes_namespace" "cosign-system" {
+  metadata {
+    name = "cosign-system"
+  }
+}
 resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = "monitoring"
@@ -221,5 +226,13 @@ resource "helm_release" "prometheus-pushgateway" {
   depends_on = [
     kubernetes_namespace.monitoring
   ]
-  
+}
+
+resource "helm_release" "sigstore" {
+  repository = "https://sigstore.github.io/helm-charts"
+  chart = "policy-controller"
+  namespace = "cosign-system"
+  depends_on = [
+    kubernetes_namespace.cosign-system
+  ]
 }

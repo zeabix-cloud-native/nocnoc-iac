@@ -1,0 +1,34 @@
+{
+    "Version" : "2022-12-21",
+    "Statement" : [
+        {
+            "Sid" : "Allow public pull",
+            "Effect" : "Allow",
+            "Principal" : {
+                "AWS": "arn:aws:iam::xxx:xxx"
+            },
+            "Action" : [
+                "ecr:CreateRepository",
+                "ecr:ReplicateImage",
+                "ecr:GetRegistryPolicy",
+                "ecr:DescribeImageScanFindings",
+                "ecr:GetLifecyclePolicyPreview",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:DescribeRegistry",
+                "ecr:DescribePullThroughCacheRules",
+                "ecr:DescribeImageReplicationStatus",
+                "ecr:GetAuthorizationToken",
+                "ecr:ListTagsForResource",
+                "ecr:ListImages",
+                "ecr:BatchGetRepositoryScanningConfiguration",
+                "ecr:GetRegistryScanningConfiguration",
+                "ecr:BatchGetImage",
+                "ecr:DescribeImages",
+                "ecr:DescribeRepositories",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetRepositoryPolicy",
+                "ecr:GetLifecyclePolicy"
+            ]
+        }
+    ]
+}
