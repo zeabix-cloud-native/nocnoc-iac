@@ -156,14 +156,14 @@ resource "helm_release" "istio-base" {
   chart            = "base"
   name             = "istio-base"
   namespace        = "istio-system"
-  version          = "1.12.1"
+  version          = "1.13.1"
   create_namespace = true
 }
 resource "helm_release" "istiod" {
   repository       = local.istio_charts_url
   chart            = "istiod"
   name             = "istiod"
-  version          = "1.12.1"
+  version          = "1.16.1"
   namespace        = "istio-system"
   depends_on       = [helm_release.istio-base]
 
