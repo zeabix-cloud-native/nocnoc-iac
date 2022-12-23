@@ -159,6 +159,23 @@ resource "helm_release" "istiod" {
   version          = "1.12.1"
   namespace        = "istio-system"
   depends_on       = [helm_release.istio-base]
+
+  set {
+    name  = "meshConfig.enableTracing"
+    value = "true"
+  }
+
+  set {
+    name  = "meshConfig.accessLogFile"
+    type  = "string"
+    value = "/dev/stdout"
+  }
+
+  set {
+    name  = "meshConfig.defaultConfig.tracing.sampling"
+    type  = "string"
+    value = 50
+  }
 }
 resource "kubernetes_namespace" "istio-ingress" {
   metadata {
