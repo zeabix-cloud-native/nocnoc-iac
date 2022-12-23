@@ -197,9 +197,12 @@ resource "kubernetes_namespace" "istio-ingress" {
 resource "helm_release" "istio-ingress" {
   repository = local.istio_charts_url
   chart      = "gateway"
-  name       = "istio-ingress"
+  name       = "istio-ingressgateway"
   version    = "1.12.1"
-  depends_on = [helm_release.istiod]
+  depends_on = [
+    helm_release.istiod,
+    module.eks_blueprints_kubernetes_addons.enable_aws_load_balancer_controller
+    ]
 }
 */
 
