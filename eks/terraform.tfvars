@@ -27,7 +27,7 @@ managed_node_groups = {
       max_size        = 9
       desired_size    = 3
 
-      ami_type = "AL2_x86_64"
+      ami_type = "AL2_ARM_64"
 
       capacity_type  = "ON_DEMAND"  # ON_DEMAND or SPOT
       labels = {}

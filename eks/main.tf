@@ -25,5 +25,6 @@ module "eks" {
   subnet_ids      = data.terraform_remote_state.network.outputs.subnet_ids
 
   managed_node_groups = local.managed_node_groups
+  enable_sigstore = var.enable_sigstore
   
 }

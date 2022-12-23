@@ -7,7 +7,7 @@ key_state      = "terraform-nonprod/network/terraform.tfstate"
 
 project_name             = "nocnoc-nonproduction"
 
-
+enable_sigstore = false
 ### Cluster ZONE 
 cluster_version          = "1.24"
 cluster_name             = "nocnoc_nonprod_cluster"
