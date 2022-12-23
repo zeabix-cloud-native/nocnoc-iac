@@ -120,25 +120,27 @@ data "aws_secretsmanager_secret_version" "admin_password_version" {
 }
 resource "helm_release" "opensearch" {
   depends_on = [
-    module.eks_blueprints
+    module.eks_blueprints,
+    kubernetes_namespace.monitoring
   ]
   name  = "opensearch"
 
   repository = "https://opensearch-project.github.io/helm-charts"
   chart      = "opensearch"
-  namespace  = "opensearch"
+  namespace  = "monitoring"
   create_namespace = true
 
 }
 
 resource "helm_release" "fluentbit" {
   depends_on = [
-    module.eks_blueprints
+    module.eks_blueprints,
+    kubernetes_namespace.monitoring
   ]
   name = "fluentbit"
   repository = "https://fluent.github.io/helm-charts"
   chart = "fluent-bit"
-  namespace = "fluent"
+  namespace = "monitoring"
   create_namespace = "true"
 }
 
@@ -189,24 +191,25 @@ resource "helm_release" "elastic" {
   repository = "https://helm.elastic.co"
   chart = "elasticsearch"
   name = "elasticsearch"
-  namespace = "tracing"
+  namespace = "monitoring"
   values = [
     "${file("../helm/elasticsearch/values.yaml")}"
   ]
   depends_on = [
-    kubernetes_namespace.tracing
+    kubernetes_namespace.monitoring
   ]
 }
 
 resource "helm_release" "zipkin" {
   chart = "helm/zipkins"
   name = "zipkin"
-  namespace = "tracing"
+  namespace = "monitoring"
   values = [
     "${file("../helm/zipkins/values.yaml")}"
   ]
    depends_on = [
-    helm_release.elastic
+    helm_release.elastic,
+    kubernetes_namespace.monitoring 
   ]
 }
 
