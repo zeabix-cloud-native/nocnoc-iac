@@ -5,7 +5,11 @@
             "Sid" : "Allow public pull",
             "Effect" : "Allow",
             "Principal" : {
-                "AWS": "arn:aws:iam::xxx:xxx"
+                "AWS": [
+                    "arn:aws:iam::136966027758:role/nocnoc-nonproduction-managed-gpu-ondemand",
+                    "arn:aws:iam::136966027758:role/nocnoc-nonproduction-managed-spot-ondemand",
+                    "arn:aws:iam::431384414715:role/nocnoc-production-managed-ondemand"
+                ]
             },
             "Action" : [
                 "ecr:CreateRepository",
