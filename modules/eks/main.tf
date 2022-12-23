@@ -261,8 +261,10 @@ resource "helm_release" "prometheus-pushgateway" {
 }
 
 resource "helm_release" "sigstore" {
+  count = var.enable_sigstore ? 1 : 0
   repository = "https://sigstore.github.io/helm-charts"
   chart = "policy-controller"
+  name = "policy-controller"
   namespace = "cosign-system"
   depends_on = [
     kubernetes_namespace.cosign-system

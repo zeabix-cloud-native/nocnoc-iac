@@ -21,3 +21,8 @@ variable "managed_node_groups" {
   type = any
   
 }
+
+variable "enable_sigstore" {
+  description = "Enable helm sigstore policy controller"
+  type = bool  
+}
