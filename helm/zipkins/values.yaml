@@ -102,5 +102,5 @@ zipkin:
     # type: mem
     type: elasticsearch
     elasticsearch:
-      hosts: https://elasticsearch-master.tracing.svc.cluster.local
+      hosts: https://elasticsearch-master.monitoring.svc.cluster.local
       index: fooIndex
