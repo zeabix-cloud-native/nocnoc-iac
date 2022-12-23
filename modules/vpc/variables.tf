@@ -38,8 +38,36 @@ variable "vpc_name" {
   type = string  
 }
 
-variable "primary_subnet_config" {
-  description = "Primary subnet configuration"
+variable "private_subnet_config" {
+  description = "Private subnet configuration"
+  type = list(object({
+    name = string
+    idx = number
+    availability_zone = string
+  })) 
+
+  default = [
+    {
+      name = "net-prd-private-DB-1a"
+      idx = 4
+      availability_zone = "ap-southeast-1a"
+    },
+    {
+      name = "net-prd-private-DB-1b"
+      idx = 14
+      availability_zone = "ap-southeast-1b"
+    },
+    {
+      name = "net-prd-private-DB-1c"
+      idx = 24
+      availability_zone = "ap-southeast-1c"
+    }
+
+  ] 
+}
+
+variable "public_subnet_config" {
+  description = "Public subnet configuration"
   type = list(object({
     name = string
     idx = number
@@ -53,28 +81,13 @@ variable "primary_subnet_config" {
       availability_zone = "ap-southeast-1a"
     },
     {
-      name = "net-prd-private-DB-1a"
-      idx = 4
-      availability_zone = "ap-southeast-1a"
-    },
-    {
       name = "private-Infra-1b"
       idx = 11
       availability_zone = "ap-southeast-1b"
     },
     {
-      name = "net-prd-private-DB-1b"
-      idx = 14
-      availability_zone = "ap-southeast-1b"
-    },
-    {
       name = "private-Infra-1c"
       idx = 21
-      availability_zone = "ap-southeast-1c"
-    },
-    {
-      name = "net-prd-private-DB-1c"
-      idx = 24
       availability_zone = "ap-southeast-1c"
     }
 

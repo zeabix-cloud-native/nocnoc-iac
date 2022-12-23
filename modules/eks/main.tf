@@ -103,8 +103,14 @@ resource "random_password" "argocd" {
   override_special = "!#$%&*()-_=+[]{}<>:?"
 }
 
+resource "random_password" "suffix" {
+  length           = 4
+  special          = true
+  override_special = "0123456789"
+}
+
 resource "aws_secretsmanager_secret" "arogcd" {
-  name                    = "argocd"
+  name                    = format("%s-%s", "argocd", random_password.suffix.result)
   recovery_window_in_days = 0 # Set to zero for this example to force delete during Terraform destroy
 }
 
@@ -118,6 +124,7 @@ data "aws_secretsmanager_secret_version" "admin_password_version" {
 
   depends_on = [aws_secretsmanager_secret_version.arogcd]
 }
+
 resource "helm_release" "opensearch" {
   depends_on = [
     module.eks_blueprints
@@ -167,6 +174,7 @@ resource "kubernetes_namespace" "istio-ingress" {
     name = "istio-ingress"
   }
 }
+/*
 resource "helm_release" "istio-ingress" {
   repository = local.istio_charts_url
   chart      = "gateway"
@@ -174,6 +182,7 @@ resource "helm_release" "istio-ingress" {
   version    = "1.12.1"
   depends_on = [helm_release.istiod]
 }
+*/
 
 resource "kubernetes_namespace" "tracing" {
   metadata {
@@ -185,6 +194,7 @@ resource "kubernetes_namespace" "monitoring" {
     name = "monitoring"
   }
 }
+/*
 resource "helm_release" "elastic" {
   repository = "https://helm.elastic.co"
   chart = "elasticsearch"
@@ -198,6 +208,7 @@ resource "helm_release" "elastic" {
   ]
 }
 
+
 resource "helm_release" "zipkin" {
   chart = "helm/zipkins"
   name = "zipkin"
@@ -206,9 +217,10 @@ resource "helm_release" "zipkin" {
     "${file("../helm/zipkins/values.yaml")}"
   ]
    depends_on = [
-    helm_release.elastic
+  //  helm_release.elastic
   ]
 }
+*/
 
 resource "helm_release" "prometheus-pushgateway" {
   repository = "https://prometheus-community.github.io/helm-charts"
