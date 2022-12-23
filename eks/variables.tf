@@ -43,3 +43,8 @@ variable "key_state" {
   description = "Key use for state file store"
   type = string
 }
+
+variable "enable_sigstore" {
+  description = "Enable helm sigstore policy controller"
+  type = bool  
+}
