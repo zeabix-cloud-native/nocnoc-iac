@@ -127,25 +127,27 @@ data "aws_secretsmanager_secret_version" "admin_password_version" {
 
 resource "helm_release" "opensearch" {
   depends_on = [
-    module.eks_blueprints
+    module.eks_blueprints,
+    kubernetes_namespace.monitoring
   ]
   name  = "opensearch"
 
   repository = "https://opensearch-project.github.io/helm-charts"
   chart      = "opensearch"
-  namespace  = "opensearch"
+  namespace  = "monitoring"
   create_namespace = true
 
 }
 
 resource "helm_release" "fluentbit" {
   depends_on = [
-    module.eks_blueprints
+    module.eks_blueprints,
+    kubernetes_namespace.monitoring
   ]
   name = "fluentbit"
   repository = "https://fluent.github.io/helm-charts"
   chart = "fluent-bit"
-  namespace = "fluent"
+  namespace = "monitoring"
   create_namespace = "true"
 }
 
@@ -164,6 +166,23 @@ resource "helm_release" "istiod" {
   version          = "1.12.1"
   namespace        = "istio-system"
   depends_on       = [helm_release.istio-base]
+
+  set {
+    name  = "meshConfig.enableTracing"
+    value = "true"
+  }
+
+  set {
+    name  = "meshConfig.accessLogFile"
+    type  = "string"
+    value = "/dev/stdout"
+  }
+
+  set {
+    name  = "meshConfig.defaultConfig.tracing.sampling"
+    type  = "string"
+    value = 50
+  }
 }
 resource "kubernetes_namespace" "istio-ingress" {
   metadata {
@@ -189,6 +208,11 @@ resource "kubernetes_namespace" "tracing" {
     name = "tracing"
   }
 }
+resource "kubernetes_namespace" "cosign-system" {
+  metadata {
+    name = "cosign-system"
+  }
+}
 resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = "monitoring"
@@ -199,12 +223,12 @@ resource "helm_release" "elastic" {
   repository = "https://helm.elastic.co"
   chart = "elasticsearch"
   name = "elasticsearch"
-  namespace = "tracing"
+  namespace = "monitoring"
   values = [
     "${file("../helm/elasticsearch/values.yaml")}"
   ]
   depends_on = [
-    kubernetes_namespace.tracing
+    kubernetes_namespace.monitoring
   ]
 }
 
@@ -212,12 +236,13 @@ resource "helm_release" "elastic" {
 resource "helm_release" "zipkin" {
   chart = "helm/zipkins"
   name = "zipkin"
-  namespace = "tracing"
+  namespace = "monitoring"
   values = [
     "${file("../helm/zipkins/values.yaml")}"
   ]
    depends_on = [
-  //  helm_release.elastic
+    helm_release.elastic,
+    kubernetes_namespace.monitoring 
   ]
 }
 */
@@ -230,5 +255,13 @@ resource "helm_release" "prometheus-pushgateway" {
   depends_on = [
     kubernetes_namespace.monitoring
   ]
-  
+}
+
+resource "helm_release" "sigstore" {
+  repository = "https://sigstore.github.io/helm-charts"
+  chart = "policy-controller"
+  namespace = "cosign-system"
+  depends_on = [
+    kubernetes_namespace.cosign-system
+  ]
 }
