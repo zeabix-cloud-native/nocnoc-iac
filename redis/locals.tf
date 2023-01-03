@@ -1,0 +1,1 @@
+subnet_ids = terraform_remote_state.network.outputs.private_subnet_ids
