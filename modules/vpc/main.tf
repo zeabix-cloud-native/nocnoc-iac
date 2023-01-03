@@ -99,8 +99,8 @@ resource "aws_subnet" "subnets_cluster" {
 
 resource "aws_route_table" "rt-pub" {
   depends_on = [
-    aws_vpc.network,
-    aws_internet_gateway.cluster_ig
+    aws_vpc.network
+#    aws_internet_gateway.cluster_ig
   ]
 
   vpc_id = aws_vpc.network.id
@@ -109,11 +109,26 @@ resource "aws_route_table" "rt-pub" {
     cidr_block = "0.0.0.0/0"
     transit_gateway_id = var.transit_gateway_id
  #  gateway_id = aws_internet_gateway.cluster_ig.id
-  }
-
-  
+  } 
 
   tags = merge({ Name = "${local.tags_prefix}-rt-public-zone"}, var.tags)
+}
+
+resource "aws_route_table" "rt-cluster" {
+  depends_on = [
+    aws_vpc.network
+#    aws_internet_gateway.cluster_ig
+  ]
+
+  vpc_id = aws_vpc.network.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    transit_gateway_id = var.transit_gateway_id
+ #  gateway_id = aws_internet_gateway.cluster_ig.id
+  } 
+
+  tags = merge({ Name = "${local.tags_prefix}-rt-cluster-zone"}, var.tags)
 }
 
 
@@ -128,67 +143,81 @@ resource "aws_route_table_association" "ig_pub_subnets" {
   route_table_id = aws_route_table.rt-pub.id  
 }
 
+## 
+## Associate cluster subnet to transit gateway
+##
+resource "aws_route_table_association" "ig_cluster_subnets" {
+  depends_on = [
+    aws_subnet.subnets_public,
+    aws_route_table.rt-pub
+  ]
+
+  for_each = { for config in var.cluster_subnet_config: config.availability_zone => config }
+  subnet_id = aws_subnet.subnets_cluster[each.value.name].id 
+  route_table_id = aws_route_table.rt-cluster.id  
+}
+
 
 #
 # NAT Gateway
 #
 
 # EIP for NatGateway
-resource "aws_eip" "nat-gateway-eips" {
-  depends_on = [
-    aws_vpc.network,
-    aws_route_table_association.ig_pub_subnets
-  ]
+# resource "aws_eip" "nat-gateway-eips" {
+#   depends_on = [
+#     aws_vpc.network,
+#     aws_route_table_association.ig_pub_subnets
+#   ]
 
-  for_each = {for config in var.public_subnet_config: config.availability_zone => config}
-  vpc = true
-  tags = merge({ Name = "${local.tags_prefix}-eip-nat-${each.key}"}, var.tags)
-}
+#   for_each = {for config in var.public_subnet_config: config.availability_zone => config}
+#   vpc = true
+#   tags = merge({ Name = "${local.tags_prefix}-eip-nat-${each.key}"}, var.tags)
+# }
 
 # NAT Gateway
-resource "aws_nat_gateway" "nat_gateways" {
-  depends_on = [
-    aws_vpc.network,
-    aws_eip.nat-gateway-eips,
-    aws_subnet.subnets_public
-  ]
+# resource "aws_nat_gateway" "nat_gateways" {
+#   depends_on = [
+#     aws_vpc.network,
+#     aws_eip.nat-gateway-eips,
+#     aws_subnet.subnets_public
+#   ]
 
-  for_each = {for config in var.public_subnet_config: config.availability_zone => config }
-  subnet_id = aws_subnet.subnets_public[each.value.name].id
-  allocation_id = aws_eip.nat-gateway-eips[each.key].id
-  tags = merge({ Name = "${local.tags_prefix}-nat-${each.key}"}, var.tags)
-}
+#   for_each = {for config in var.public_subnet_config: config.availability_zone => config }
+#   subnet_id = aws_subnet.subnets_public[each.value.name].id
+#   allocation_id = aws_eip.nat-gateway-eips[each.key].id
+#   tags = merge({ Name = "${local.tags_prefix}-nat-${each.key}"}, var.tags)
+# }
 
 #NAT Route tables
-resource "aws_route_table" "rt-nat-gateways" {
-  depends_on = [
-    aws_vpc.network,
-    aws_nat_gateway.nat_gateways
-  ]
-  for_each = { for config in var.cluster_subnet_config: config.availability_zone => config }
+# resource "aws_route_table" "rt-nat-gateways" {
+#   depends_on = [
+#     aws_vpc.network,
+#     aws_nat_gateway.nat_gateways
+#   ]
+#   for_each = { for config in var.cluster_subnet_config: config.availability_zone => config }
 
-  vpc_id = aws_vpc.network.id
+#   vpc_id = aws_vpc.network.id
 
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.nat_gateways[each.key].id
-  }
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     nat_gateway_id = aws_nat_gateway.nat_gateways[each.key].id
+#   }
 
-  tags = merge({ Name = "${local.tags_prefix}-rt-nat-gw-${each.key}"}, var.tags)
+#   tags = merge({ Name = "${local.tags_prefix}-rt-nat-gw-${each.key}"}, var.tags)
   
-}
+# }
 
 # NAT-Subnets associations
-resource "aws_route_table_association" "nat-rt-association" {
-  depends_on = [
-    aws_route_table.rt-nat-gateways,
-    aws_subnet.subnets_cluster
-  ]
+# resource "aws_route_table_association" "nat-rt-association" {
+#   depends_on = [
+#     aws_route_table.rt-nat-gateways,
+#     aws_subnet.subnets_cluster
+#   ]
 
-  for_each = { for sub in var.cluster_subnet_config: sub.availability_zone => sub }
-  subnet_id = aws_subnet.subnets_cluster[each.value.name].id 
-  route_table_id = aws_route_table.rt-nat-gateways[each.key].id
-}
+#   for_each = { for sub in var.cluster_subnet_config: sub.availability_zone => sub }
+#   subnet_id = aws_subnet.subnets_cluster[each.value.name].id 
+#   route_table_id = aws_route_table.rt-nat-gateways[each.key].id
+# }
 
 #
 # Security Group for Node Group

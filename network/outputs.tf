@@ -17,3 +17,8 @@ output "subnet_ids" {
   description = "List of subnet ids for deploy EKS"
   value = module.network.cluster_subnet_ids
 }
+
+output "private_subnet_ids" {
+  description = "List of subnet id for private zone (DB)"
+  value = module.network.private_subnet_ids
+}
