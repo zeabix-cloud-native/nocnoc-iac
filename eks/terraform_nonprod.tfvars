@@ -22,10 +22,10 @@ enable_kms               = true
 managed_node_groups = {
     mg_ondemand = {
       node_group_name = "managed-general-ondemand"
-      instance_types  = ["t3a.2xlarge"] 
-      min_size        = 3
-      max_size        = 9
-      desired_size    = 3
+      instance_types  = ["t3a.xlarge"] 
+      min_size        = 1
+      max_size        = 2
+      desired_size    = 1
 
       ami_type = "AL2_x86_64" # AL2_x86_64, AL2_x86_64_GPU, AL2_ARM_64, BOTTLEROCKET_x86_64, BOTTLEROCKET_ARM_64
 
@@ -39,10 +39,10 @@ managed_node_groups = {
     }
     mg_spot = {
       node_group_name = "managed-general-spot"
-      instance_types  = ["t3a.2xlarge"]
-      min_size        = 3
-      max_size        = 9
-      desired_size    = 3
+      instance_types  = ["t3a.xlarge"]
+      min_size        = 1
+      max_size        = 2
+      desired_size    = 1
 
       ami_type = "AL2_x86_64"  # AL2_x86_64, AL2_x86_64_GPU, AL2_ARM_64, BOTTLEROCKET_x86_64, BOTTLEROCKET_ARM_64
 
