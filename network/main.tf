@@ -17,4 +17,6 @@ module "network" {
   availability_zones = var.availability_zones
   enable_kms = var.enable_kms
   primary_subnet_prefix = var.primary_subnet_prefix
+  transit_gateway_id = var.transit_gateway_id
+  
 }
