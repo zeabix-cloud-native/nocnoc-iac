@@ -85,16 +85,16 @@ resource "aws_subnet" "subnets_cluster" {
 }
 
 # Internet Gateway
-resource "aws_internet_gateway" "cluster_ig" {
-  depends_on = [
-    aws_vpc.network,
-    aws_subnet.subnets_public
-  ]
+# resource "aws_internet_gateway" "cluster_ig" {
+#   depends_on = [
+#     aws_vpc.network,
+#     aws_subnet.subnets_public
+#   ]
 
-  vpc_id = aws_vpc.network.id
+#   vpc_id = aws_vpc.network.id
 
-  tags = merge({ Name = "${local.tags_prefix}-ig-cluster"}, var.tags)
-}
+#   tags = merge({ Name = "${local.tags_prefix}-ig-cluster"}, var.tags)
+# }
 
 
 resource "aws_route_table" "rt-pub" {
@@ -107,7 +107,8 @@ resource "aws_route_table" "rt-pub" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.cluster_ig.id
+    transit_gateway_id = var.transit_gateway_id
+ #  gateway_id = aws_internet_gateway.cluster_ig.id
   }
 
   

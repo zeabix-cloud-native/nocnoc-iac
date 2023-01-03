@@ -121,3 +121,8 @@ variable "cluster_subnet_config" {
     }
   ] 
 }
+
+variable "transit_gateway_id" {
+  description = "Gateway id association"
+  type = string
+}

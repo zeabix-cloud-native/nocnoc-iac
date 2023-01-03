@@ -35,3 +35,8 @@ variable "primary_subnet_prefix" {
     description = "Subnet prefix for primary cidr block"
     type = string
 }
+
+variable "transit_gateway_id" {
+  description = "Gateway id association"
+  type = string
+}

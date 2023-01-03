@@ -22,3 +22,5 @@ availability_zones       = {
     "az2" = "ap-southeast-1b"
     "az3" = "ap-southeast-1c"
 }
+
+transit_gateway_id = "tgw-06923dc3adacdec95"

@@ -1,6 +1,6 @@
 region         = "ap-southeast-1"
 
-project_name             = "nocnoc-nonproduction"
+project_name             = "nocnoc-sandbox"
 ### VPC ZONE
 vpc_cidr_blocks          = {
     "primary_cidr_block" = "172.17.0.0/16"
@@ -10,10 +10,10 @@ vpc_cidr_blocks          = {
 tags                     = {
     Platform = "eks"
     Owner= ""
-    Env = "nonproduction"
+    Env = "sandbox"
 }
 enable_kms               = true
-vpc_name = "vpc-nocnoc-nonprd"
+vpc_name = "vpc-nocnoc-sandbox"
 primary_subnet_prefix = "net"
 
 availability_zones       = {
