@@ -30,9 +30,9 @@ managed_node_groups = {
       ami_type = "AL2_ARM_64"
 
       capacity_type  = "ON_DEMAND"  # ON_DEMAND or SPOT
-      labels = {}
-      taints = []
-      tags = {}
+      k8s_labels = {}
+      k8s_taints = []
+      additional_tags = {}
     }
     ## For Additional node group in the future
     ## Example

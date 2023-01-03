@@ -10,9 +10,9 @@ locals {
         desired_size    = v.desired_size
         ami_type        = v.ami_type
         capacity_type   = v.capacity_type
-        labels          = v.labels
-        taints          = v.taints
-        tags            = v.tags
+        k8s_labels          = v.k8s_labels
+        k8s_taints          = v.k8s_taints
+        additional_tags            = v.additional_tags
         
         subnet_ids      = local.subnetID
   }}
