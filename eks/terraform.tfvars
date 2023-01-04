@@ -22,12 +22,12 @@ enable_kms               = true
 managed_node_groups = {
     mg_ondemand = {
       node_group_name = "managed-ondemand"
-      instance_types  = ["t4g.2xlarge"]
+      instance_types  = ["t3a.xlarge"] 
       min_size        = 3
       max_size        = 9
       desired_size    = 3
 
-      ami_type = "AL2_ARM_64"
+      ami_type = "AL2_x86_64"
 
       capacity_type  = "ON_DEMAND"  # ON_DEMAND or SPOT
       k8s_labels = {}
