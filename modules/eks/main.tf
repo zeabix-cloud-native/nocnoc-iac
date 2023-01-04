@@ -49,6 +49,7 @@ module "eks_blueprints_kubernetes_addons" {
   enable_aws_cloudwatch_metrics       = true
   enable_kubecost                     = true
   enable_kube_prometheus_stack        = true
+  cluster_enabled_log_types           = []
   enable_cluster_autoscaler = true
   cluster_autoscaler_helm_config = {
     set = [
