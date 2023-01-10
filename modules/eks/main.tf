@@ -213,6 +213,7 @@ resource "kubernetes_namespace" "tracing" {
   }
 }
 resource "kubernetes_namespace" "cosign-system" {
+  count = var.enable_sigstore ? 1 : 0
   metadata {
     name = "cosign-system"
   }
