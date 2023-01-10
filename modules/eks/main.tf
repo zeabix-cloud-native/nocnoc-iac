@@ -223,7 +223,7 @@ resource "kubernetes_namespace" "monitoring" {
     name = "monitoring"
   }
 }
-/*
+
 resource "helm_release" "elastic" {
   repository = "https://helm.elastic.co"
   chart = "elasticsearch"
@@ -250,7 +250,20 @@ resource "helm_release" "zipkin" {
     kubernetes_namespace.monitoring 
   ]
 }
-*/
+
+resource "helm_release" "grafana" {
+  chart = "https://grafana.github.io/helm-charts"
+  name = "grafana"
+  namespace = "monitoring"
+  # values = [
+  #   "${file("../helm/zipkins/values.yaml")}"
+  # ]
+   depends_on = [
+    helm_release.elastic,
+    kubernetes_namespace.monitoring 
+  ]
+}
+
 
 resource "helm_release" "prometheus-pushgateway" {
   repository = "https://prometheus-community.github.io/helm-charts"
