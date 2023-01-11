@@ -1,16 +1,3 @@
-locals {
-  tags_prefix = lower(var.project_name)
-  public_subnet_tags = { 
-    "kubernetes.io/cluster/${lower(var.project_name)}-cluster" = "shared"
-    "kubernetes.io/role/elb"                      = 1
-  }
-
-  private_subnet_tags = {
-    "kubernetes.io/cluster/${lower(var.project_name)}-cluster" = "shared"
-    "kubernetes.io/role/internal-elb"             = 1
-  }
-
-}
 
 resource "aws_vpc" "network" {
   cidr_block = var.vpc_cidr_blocks["primary_cidr_block"]
@@ -44,7 +31,7 @@ resource "aws_subnet" "subnets_private" {
   availability_zone = each.value["availability_zone"] 
   cidr_block = cidrsubnet(var.vpc_cidr_blocks["primary_cidr_block"], 8, each.value["idx"])
   map_public_ip_on_launch = true
-  tags = merge({ Name = format("%s-%s", var.primary_subnet_prefix, each.value["name"])}, local.public_subnet_tags, var.tags)
+  tags = merge({ Name = format("%s-%s", var.primary_subnet_prefix, each.value["name"])}, var.tags)
 }
 
 
@@ -62,7 +49,7 @@ resource "aws_subnet" "subnets_public" {
   availability_zone = each.value["availability_zone"] 
   cidr_block = cidrsubnet(var.vpc_cidr_blocks["primary_cidr_block"], 8, each.value["idx"])
   map_public_ip_on_launch = true
-  tags = merge({ Name = format("%s-%s", var.primary_subnet_prefix, each.value["name"])}, local.public_subnet_tags, var.tags)
+  tags = merge({ Name = format("%s-%s", var.primary_subnet_prefix, each.value["name"])}, local.alb_subnet_tags, var.tags)
 }
 
 /*
@@ -80,7 +67,7 @@ resource "aws_subnet" "subnets_cluster" {
   vpc_id = aws_vpc.network.id
   availability_zone = each.value["availability_zone"]
   cidr_block = cidrsubnet(var.vpc_cidr_blocks["secondary_cidr_block"], 2, each.value["idx"])
-  tags = merge({ Name = format("%s-%s", var.primary_subnet_prefix, each.value["name"])}, local.private_subnet_tags, var.tags)
+  tags = merge({ Name = format("%s-%s", var.primary_subnet_prefix, each.value["name"])}, var.tags)
 
 }
 
