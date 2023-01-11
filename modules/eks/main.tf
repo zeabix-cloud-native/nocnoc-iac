@@ -27,6 +27,7 @@ module "eks_blueprints" {
   vpc_id             = var.vpc_id
   private_subnet_ids = var.subnet_ids
   managed_node_groups = var.managed_node_groups
+//  cluster_enabled_log_types           = []
 }
 
 module "eks_blueprints_kubernetes_addons" {
@@ -46,10 +47,9 @@ module "eks_blueprints_kubernetes_addons" {
   # Add-ons
   enable_aws_load_balancer_controller = true
   enable_metrics_server               = true
-  enable_aws_cloudwatch_metrics       = true
+  enable_aws_cloudwatch_metrics       = false
   enable_kubecost                     = true
   enable_kube_prometheus_stack        = true
-  cluster_enabled_log_types           = []
   enable_cluster_autoscaler = true
   cluster_autoscaler_helm_config = {
     set = [
@@ -86,6 +86,7 @@ module "eks_blueprints_kubernetes_addons" {
 
   argocd_manage_add_ons = true # Indicates that ArgoCD is responsible for managing/deploying add-ons
 
+  /*
   argocd_applications     = {
     blogs-service = {
       path                = "chart"
@@ -95,6 +96,7 @@ module "eks_blueprints_kubernetes_addons" {
       add_on_application  = true # Indicates the root add-on application.
     }
   }
+  */
 }
 
 
@@ -224,6 +226,7 @@ resource "kubernetes_namespace" "monitoring" {
   }
 }
 
+/*
 resource "helm_release" "elastic" {
   repository = "https://helm.elastic.co"
   chart = "elasticsearch"
@@ -236,33 +239,43 @@ resource "helm_release" "elastic" {
     kubernetes_namespace.monitoring
   ]
 }
+*/
 
 
 resource "helm_release" "zipkin" {
-  chart = "helm/zipkins"
+  chart = "../helm/zipkins"
   name = "zipkin"
   namespace = "monitoring"
-  values = [
-    "${file("../helm/zipkins/values.yaml")}"
-  ]
+  # values = [
+  #   "${file("../../helm/zipkins/values.yaml")}"
+  # ]
    depends_on = [
-    helm_release.elastic,
     kubernetes_namespace.monitoring 
   ]
 }
 
+
 resource "helm_release" "grafana" {
-  chart = "https://grafana.github.io/helm-charts"
+  chart = "../helm/grafana"
   name = "grafana"
   namespace = "monitoring"
-  # values = [
-  #   "${file("../helm/zipkins/values.yaml")}"
-  # ]
+
+  set {
+    name = "ingress.enabled"
+    value = "true"
+  }
+
+  set {
+    name = "ingress.hosts[0]"
+    value = "monitoring-nonprod-1548275427.ap-southeast-1.elb.amazonaws.com"
+  }
+
    depends_on = [
-    helm_release.elastic,
     kubernetes_namespace.monitoring 
   ]
 }
+
+
 
 
 resource "helm_release" "prometheus-pushgateway" {
