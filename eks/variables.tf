@@ -48,3 +48,11 @@ variable "enable_sigstore" {
   description = "Enable helm sigstore policy controller"
   type = bool  
 }
+
+variable "create_namespaces" {
+  description = "List of namespaces that want to create"
+  type = list(object({
+    name = string,
+    annotations = map(string)
+  }))  
+}

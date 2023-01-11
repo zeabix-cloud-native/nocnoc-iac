@@ -26,5 +26,6 @@ module "eks" {
 
   managed_node_groups = local.managed_node_groups
   enable_sigstore = var.enable_sigstore
+  create_namespaces = var.create_namespaces
   
 }

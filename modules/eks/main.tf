@@ -48,8 +48,35 @@ module "eks_blueprints_kubernetes_addons" {
   enable_aws_load_balancer_controller = true
   enable_metrics_server               = true
   enable_aws_cloudwatch_metrics       = false
-  enable_kubecost                     = true
+  enable_kubecost                     = false
   enable_kube_prometheus_stack        = true
+  kube_prometheus_stack_helm_config   = {
+    namespace = "prometheus"
+
+    set = [
+      {
+        name  = "grafana.ingress.enabled",
+        value = "enabled",
+        type  = "string",
+      },
+      {
+        name  = "grafana.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/scheme",
+        value = "internal",
+        type  = "string",
+      },
+      {
+        name  = "grafana.ingress.annotations.alb\\.ingress\\.kubernetes\\.io/target-type",
+        value = "ip",
+        type  = "string",
+      },
+      {
+        name  = "grafana.ingress.ingressClassName",
+        value = "alb",
+        type  = "string",
+      },
+    ]
+  }
+
   enable_cluster_autoscaler = true
   cluster_autoscaler_helm_config = {
     set = [
@@ -142,6 +169,12 @@ resource "helm_release" "opensearch" {
 
 }
 
+resource "kubernetes_namespace" "monitoring" {
+  metadata {
+    name = "monitoring"
+  }
+}
+
 resource "helm_release" "fluentbit" {
   depends_on = [
     module.eks_blueprints,
@@ -187,6 +220,8 @@ resource "helm_release" "istiod" {
     value = 50
   }
 }
+
+/*
 resource "kubernetes_namespace" "istio-ingress" {
   metadata {
     labels = {
@@ -196,7 +231,7 @@ resource "kubernetes_namespace" "istio-ingress" {
     name = "istio-ingress"
   }
 }
-/*
+
 resource "helm_release" "istio-ingress" {
   repository = local.istio_charts_url
   chart      = "gateway"
@@ -207,22 +242,20 @@ resource "helm_release" "istio-ingress" {
     module.eks_blueprints_kubernetes_addons.enable_aws_load_balancer_controller
     ]
 }
-*/
+
 
 resource "kubernetes_namespace" "tracing" {
   metadata {
     name = "tracing"
   }
 }
+
+*/
+
 resource "kubernetes_namespace" "cosign-system" {
   count = var.enable_sigstore ? 1 : 0
   metadata {
     name = "cosign-system"
-  }
-}
-resource "kubernetes_namespace" "monitoring" {
-  metadata {
-    name = "monitoring"
   }
 }
 
@@ -254,7 +287,7 @@ resource "helm_release" "zipkin" {
   ]
 }
 
-
+/*
 resource "helm_release" "grafana" {
   chart = "../helm/grafana"
   name = "grafana"
@@ -273,6 +306,18 @@ resource "helm_release" "grafana" {
    depends_on = [
     kubernetes_namespace.monitoring 
   ]
+}
+*/
+
+// User defined namespace creation
+resource "kubernetes_namespace" "user_namespaces" {
+  for_each = {for ns in var.create_namespaces: ns.name => ns}
+
+  metadata {
+    name = "${each.value.name}"
+    annotations = each.value.annotations
+  }
+  
 }
 
 

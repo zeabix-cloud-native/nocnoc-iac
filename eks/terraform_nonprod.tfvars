@@ -54,7 +54,54 @@ managed_node_groups = {
       k8s_taints = []
       additional_tags = {}
     }
+}
+
+# User defined namespaces for nonproduction cluster
+# e.g. app-dev, app-qa, app-uat
+#
+create_namespaces = [ {
+  annotations = {
+    "nocnoc.com/environment" = "development"
   }
+
+/*
+  // Uncomment this if plan to adopt istio for this namespace
+  labels = {
+      istio-injection = "enabled"
+  }
+*/
+
+  name = "app-dev"
+},
+{
+  annotations = {
+    "nocnoc.com/environment" = "qa"
+  }
+
+  /*
+  // Uncomment this if plan to adopt istio for this namespace
+  labels = {
+      istio-injection = "enabled"
+  }
+*/
+
+  name = "app-qa"
+},
+{
+  annotations = {
+    "nocnoc.com/environment" = "pre-production"
+  }
+
+  /*
+  // Uncomment this if plan to adopt istio for this namespace
+  labels = {
+      istio-injection = "enabled"
+  }
+*/
+
+  name = "app-uat"
+}]
+
 
 
 
